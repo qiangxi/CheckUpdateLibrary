@@ -10,8 +10,10 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.qiangxi.checkupdatelibrarydemo.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <Button
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:text="强制更新dialog"
+        android:textAllCaps="false"
+        android:onClick="forceUpdateDialogClick"/>
 </RelativeLayout>

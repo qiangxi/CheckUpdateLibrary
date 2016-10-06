@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="update_button">#64B5F6</color>
+    <color name="no_update_button">#EBEBEB</color>
+
+</resources>
