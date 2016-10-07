@@ -14,7 +14,7 @@ public class CheckUpdateInfo {
     private String newAppReleaseTime;//新app发布时间
     private String newAppUrl;//新app下载地址
     private int oldAppVersionCode;//老app版本号
-    private int isForceUpdate;//是否强制更新
+    private int isForceUpdate;//是否强制更新(可自行与服务端商议,比如0表示强制更新,1表示非强制更新)
 
     public CheckUpdateInfo() {
     }
