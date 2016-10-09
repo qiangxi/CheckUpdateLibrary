@@ -3,7 +3,10 @@ package com.qiangxi.checkupdatelibrarydemo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
 
+import com.qiangxi.checkupdatelibrary.Q;
+import com.qiangxi.checkupdatelibrary.callback.CheckUpdateCallback;
 import com.qiangxi.checkupdatelibrary.dialog.ForceUpdateDialog;
 import com.qiangxi.checkupdatelibrary.dialog.UpdateDialog;
 
@@ -17,10 +20,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void forceUpdateDialogClick(View view) {
-//        Q.checkUpdate(this, "", new CheckUpdateCallback<CheckUpdateInfo>() {
-//            @Override
-//            public void onCheckUpdateSuccess(CheckUpdateInfo checkUpdateInfo, boolean hasUpdate) {
-//                if (hasUpdate) {
+        Q.checkUpdate("post", "", new CheckUpdateCallback() {
+            @Override
+            public void onCheckUpdateSuccess(String result, boolean hasUpdate) {
+                if (hasUpdate) {
 //                    if (checkUpdateInfo.getIsForceUpdate() == 0) {
 //                        ForceUpdateDialog dialog = new ForceUpdateDialog(MainActivity.this);
 //                        dialog.setAppSize(checkUpdateInfo.getNewAppSize())
@@ -31,16 +34,16 @@ public class MainActivity extends AppCompatActivity {
 //                                .setUpdateDesc(checkUpdateInfo.getNewAppUpdateDesc());
 //                        dialog.show();
 //                    }
-//                } else {
-//                    Toast.makeText(MainActivity.this, "当前已经是最新版本啦", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onCheckUpdateFailure(String failureMessage, int errorCode) {
-//                Toast.makeText(MainActivity.this, "啊哦,遇到问题了,请稍后重试", Toast.LENGTH_SHORT).show();
-//            }
-//        });
+                } else {
+                    Toast.makeText(MainActivity.this, "当前已经是最新版本啦", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCheckUpdateFailure(String failureMessage, int errorCode) {
+                Toast.makeText(MainActivity.this, "啊哦,遇到问题了,请稍后重试", Toast.LENGTH_SHORT).show();
+            }
+        });
         ForceUpdateDialog dialog = new ForceUpdateDialog(this);
         dialog.setAppSize(12.35f)
                 .setDownloadUrl("http://123.56.66.24:8080")
@@ -52,10 +55,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void UpdateDialogClick(View view) {
-//        Q.checkUpdate(this, "", new CheckUpdateCallback<CheckUpdateInfo>() {
-//            @Override
-//            public void onCheckUpdateSuccess(CheckUpdateInfo checkUpdateInfo, boolean hasUpdate) {
-//                if (hasUpdate) {
+        Q.checkUpdate("post", "", new CheckUpdateCallback() {
+            @Override
+            public void onCheckUpdateSuccess(String result, boolean hasUpdate) {
+                if (hasUpdate) {
 //                    if (checkUpdateInfo.getIsForceUpdate() == 1) {
 //                        UpdateDialog dialog = new UpdateDialog(MainActivity.this);
 //                        dialog.setAppSize(checkUpdateInfo.getNewAppSize())
@@ -66,16 +69,16 @@ public class MainActivity extends AppCompatActivity {
 //                                .setUpdateDesc(checkUpdateInfo.getNewAppUpdateDesc());
 //                        dialog.show();
 //                    }
-//                } else {
-//                    Toast.makeText(MainActivity.this, "当前已经是最新版本啦", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onCheckUpdateFailure(String failureMessage, int errorCode) {
-//                Toast.makeText(MainActivity.this, "啊哦,遇到问题了,请稍后重试", Toast.LENGTH_SHORT).show();
-//            }
-//        });
+                } else {
+                    Toast.makeText(MainActivity.this, "当前已经是最新版本啦", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCheckUpdateFailure(String failureMessage, int errorCode) {
+                Toast.makeText(MainActivity.this, "啊哦,遇到问题了,请稍后重试", Toast.LENGTH_SHORT).show();
+            }
+        });
         UpdateDialog dialog = new UpdateDialog(this);
         dialog.setAppSize(14.35f)
                 .setDownloadUrl("http://123.56.66.24")
