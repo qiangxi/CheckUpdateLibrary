@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void forceUpdateDialogClick(View view) {
-        Q.checkUpdate("post", "", new CheckUpdateCallback() {
+        Q.checkUpdate("post", "http://101.201.49.217/call-car-web/../apk/yimin_user_update.html", new CheckUpdateCallback() {
             @Override
             public void onCheckUpdateSuccess(String result, boolean hasUpdate) {
                 if (hasUpdate) {
