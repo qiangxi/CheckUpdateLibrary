@@ -36,18 +36,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
 }
-////添加
-//publish {
-//    userOrg = 'renqiangqiang1993'//bintray.com用户名
-//    groupId = 'com.qiangxi'//jcenter上的路径
-//    artifactId = 'checkupdatelibrary'//项目名称
-//    publishVersion = '1.0.0'//版本号
-//    desc = 'Android checkupdatelibrary'//描述，不重要
-//    website = 'https://github.com/qiangxi/CheckUpdateLibrary'//网站，不重要；尽量模拟github上的地址，例如我这样的；当然你有地址最好了
-//}
-//task javadoc(type: Javadoc) {
-//    options.encoding = "utf-8" //用来解决javaDoc编码不通过的问题
-//}
 def siteUrl = 'https://github.com/qiangxi/CheckUpdateLibrary'      // 项目的主页
 def gitUrl = 'https://github.com/qiangxi/CheckUpdateLibrary.git'   // Git仓库的url
 group = "com.qiangxi.checkupdatelibrary"     //一般填你唯一的包名
@@ -58,7 +46,7 @@ install {
             project {
                 packaging 'aar'
                 // Add your description here
-                name 'Android checkupdatelibrary' 	//项目描述
+                name 'checkupdatelibrary' 	//项目描述
                 url siteUrl
                 // Set your license
                 licenses {
@@ -71,7 +59,7 @@ install {
                     developer {
                         id 'qiang_xi'		//填写的一些基本信息
                         name 'renqiangqiang'
-                        email 'renqiangqiang1993@gmail.com'
+                        email 'renqiangqiang.china@gmail.com'
                     }
                 }
                 scm {
@@ -108,11 +96,10 @@ bintray {
     key = properties.getProperty("bintray.apikey")
     configurations = ['archives']
     pkg {
-        repo = "maven"
+        repo = "checkupdatelibrary"
         name = "checkupdatelibrary"	//发布到JCenter上的项目名字
         websiteUrl = siteUrl
         vcsUrl = gitUrl
-
         licenses = ["Apache-2.0"]
         publish = true
     }
