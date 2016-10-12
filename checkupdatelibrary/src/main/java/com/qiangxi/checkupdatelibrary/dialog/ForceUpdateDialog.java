@@ -12,7 +12,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.qiangxi.checkupdatelibrary.R;
 import com.qiangxi.checkupdatelibrary.callback.DownloadCallback;
@@ -47,6 +46,7 @@ public class ForceUpdateDialog extends Dialog {
     private String mAppDesc;//更新日志
     private String mFilePath;//文件存储路径
     private String mFileName;//自定义的文件名
+    private long timeRange;//时间间隔
 
     public ForceUpdateDialog(Context context) {
         super(context);
@@ -93,28 +93,47 @@ public class ForceUpdateDialog extends Dialog {
         forceUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                forceUpdateProgress.setVisibility(View.VISIBLE);
-                HttpRequest.download(mDownloadUrl, mFilePath, mFileName, new DownloadCallback() {
-                    @Override
-                    public void onDownloadSuccess(File file) {
-                        forceUpdate.setEnabled(false);
+                //防抖动,两次点击间隔小于500ms都return;
+                if (System.currentTimeMillis() - timeRange < 500) {
+                    return;
+                }
+                timeRange = System.currentTimeMillis();
+                if ("点击安装".equals(forceUpdate.getText().toString().trim())) {
+                    File file = new File(mFilePath, mFileName);
+                    if (file.exists()) {
                         ApplicationUtils.installApk(context, file);
+                    } else {
+                        download();
                     }
+                    return;
+                }
+                download();
+            }
+        });
+    }
 
-                    @Override
-                    public void onProgress(int currentProgress, int totalProgress) {
-                        forceUpdate.setEnabled(false);
-                        forceUpdateProgress.setProgress(currentProgress);
-                        forceUpdateProgress.setMax(totalProgress);
-                    }
+    private void download() {
+        forceUpdateProgress.setVisibility(View.VISIBLE);
+        HttpRequest.download(mDownloadUrl, mFilePath, mFileName, new DownloadCallback() {
+            @Override
+            public void onDownloadSuccess(File file) {
+                forceUpdate.setEnabled(true);
+                forceUpdate.setText("点击安装");
+                ApplicationUtils.installApk(context, file);
+            }
 
-                    @Override
-                    public void onDownloadFailure(String failureMessage) {
-                        forceUpdate.setEnabled(true);
-                        forceUpdate.setText("重新下载");
-                    }
-                });
-                Toast.makeText(context, "下载地址:" + mDownloadUrl, Toast.LENGTH_LONG).show();
+            @Override
+            public void onProgress(long currentProgress, long totalProgress) {
+                forceUpdate.setEnabled(false);
+                forceUpdate.setText("正在下载");
+                forceUpdateProgress.setProgress((int) (currentProgress));
+                forceUpdateProgress.setMax((int) (totalProgress));
+            }
+
+            @Override
+            public void onDownloadFailure(String failureMessage) {
+                forceUpdate.setEnabled(true);
+                forceUpdate.setText("重新下载");
             }
         });
     }
@@ -135,41 +154,65 @@ public class ForceUpdateDialog extends Dialog {
         //强制更新时,按返回键不隐藏dialog,方法体置空即可
     }
 
+    /**
+     * 设置文件下载地址
+     */
     public ForceUpdateDialog setDownloadUrl(String downloadUrl) {
         this.mDownloadUrl = downloadUrl;
         return this;
     }
 
+    /**
+     * 设置dialog显示标题
+     */
     public ForceUpdateDialog setTitle(String title) {
         this.mTitle = title;
         return this;
     }
 
+    /**
+     * 设置发布时间
+     */
     public ForceUpdateDialog setReleaseTime(String releaseTime) {
         this.mAppTime = releaseTime;
         return this;
     }
 
+    /**
+     * 设置版本名,如2.2.1
+     */
     public ForceUpdateDialog setVersionName(String versionName) {
         this.mVersionName = versionName;
         return this;
     }
 
+    /**
+     * 设置更新日志,需要自己分好段落
+     */
     public ForceUpdateDialog setUpdateDesc(String updateDesc) {
         this.mAppDesc = updateDesc;
         return this;
     }
 
+    /**
+     * 设置软件大小
+     */
     public ForceUpdateDialog setAppSize(float appSize) {
         this.mAppSize = appSize;
         return this;
     }
 
+    /**
+     * 设置文件存储路径
+     */
     public ForceUpdateDialog setFilePath(String filePath) {
         this.mFilePath = filePath;
         return this;
     }
 
+    /**
+     * 设置下载文件名
+     */
     public ForceUpdateDialog setFileName(String fileName) {
         this.mFileName = fileName;
         return this;

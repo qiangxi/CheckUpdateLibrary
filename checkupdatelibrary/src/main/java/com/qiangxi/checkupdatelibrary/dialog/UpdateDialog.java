@@ -2,6 +2,7 @@ package com.qiangxi.checkupdatelibrary.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.qiangxi.checkupdatelibrary.R;
+import com.qiangxi.checkupdatelibrary.service.DownloadService;
 
 /**
  * Created by qiang_xi on 2016/10/7 13:04.
@@ -37,6 +39,11 @@ public class UpdateDialog extends Dialog {
     private String mVersionName;//版本名
     private float mAppSize;//软件大小
     private String mAppDesc;//更新日志
+    private String mFilePath;//文件存储路径
+    private String mFileName;//自定义的文件名
+    private int mIconResId;//通知栏图标id
+    private boolean isShowProgress = false;//是否在通知栏显示下载进度,默认不显示
+    private long timeRange;//时间间隔
 
     public UpdateDialog(Context context) {
         super(context);
@@ -64,13 +71,23 @@ public class UpdateDialog extends Dialog {
         initEvent();
     }
 
-
     private void initEvent() {
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO 该种情况下,点击立即更新则关闭dialog,然后在后台service中进行下载
-                Toast.makeText(context, "下载地址:" + mDownloadUrl, Toast.LENGTH_LONG).show();
+                //防抖动,两次点击间隔小于1s都return;
+                if (System.currentTimeMillis() - timeRange < 1000) {
+                    return;
+                }
+                timeRange = System.currentTimeMillis();
+                Intent intent = new Intent(context, DownloadService.class);
+                intent.putExtra("downloadUrl", mDownloadUrl);
+                intent.putExtra("filePath", mFilePath);
+                intent.putExtra("fileName", mFileName);
+                intent.putExtra("iconResId", mIconResId);
+                intent.putExtra("isShowProgress", isShowProgress);
+                context.startService(intent);
+                dismiss();
             }
         });
 
@@ -78,6 +95,7 @@ public class UpdateDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 dismiss();
+                Toast.makeText(context, "正在后台为您下载", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -100,33 +118,83 @@ public class UpdateDialog extends Dialog {
         noUpdate = (Button) view.findViewById(R.id.noUpdate);
     }
 
+    /**
+     * 设置文件下载地址
+     */
     public UpdateDialog setDownloadUrl(String downloadUrl) {
         this.mDownloadUrl = downloadUrl;
         return this;
     }
 
+    /**
+     * 设置dialog显示标题
+     */
     public UpdateDialog setTitle(String title) {
         this.mTitle = title;
         return this;
     }
 
+    /**
+     * 设置发布时间
+     */
     public UpdateDialog setReleaseTime(String releaseTime) {
         this.mAppTime = releaseTime;
         return this;
     }
 
+    /**
+     * 设置版本名,如2.2.1
+     */
     public UpdateDialog setVersionName(String versionName) {
         this.mVersionName = versionName;
         return this;
     }
 
+    /**
+     * 设置更新日志,需要自己分好段落
+     */
     public UpdateDialog setUpdateDesc(String updateDesc) {
         this.mAppDesc = updateDesc;
         return this;
     }
 
+    /**
+     * 设置软件大小
+     */
     public UpdateDialog setAppSize(float appSize) {
         this.mAppSize = appSize;
+        return this;
+    }
+
+    /**
+     * 设置文件存储路径
+     */
+    public UpdateDialog setFilePath(String filePath) {
+        this.mFilePath = filePath;
+        return this;
+    }
+
+    /**
+     * 设置下载文件名
+     */
+    public UpdateDialog setFileName(String fileName) {
+        this.mFileName = fileName;
+        return this;
+    }
+
+    /**
+     * 设置图标资源id,该图标用来显示在通知栏中
+     */
+    public UpdateDialog setIconResId(int iconResId) {
+        this.mIconResId = iconResId;
+        return this;
+    }
+
+    /**
+     * 是否在通知栏显示下载进度(true:显示,false:不显示,默认不显示)
+     */
+    public UpdateDialog setShowProgress(boolean isShowProgress) {
+        this.isShowProgress = isShowProgress;
         return this;
     }
 }

@@ -22,10 +22,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-//    lintOptions{
-//        abortOnError false   //这是添加的
-//        checkReleaseBuilds false  //这是添加的
-//    }
 }
 
 dependencies {

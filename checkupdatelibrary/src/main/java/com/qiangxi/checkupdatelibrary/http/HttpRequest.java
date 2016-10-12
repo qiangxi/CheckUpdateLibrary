@@ -22,6 +22,7 @@ import java.net.URL;
 
 /**
  * Created by qiang_xi on 2016/10/9 20:36.
+ * 网络请求类
  */
 
 public class HttpRequest {
@@ -32,8 +33,8 @@ public class HttpRequest {
     private static final int downloadFailure = 4;
     private static final int error = -1;
 
-    private static CheckUpdateCallback updateCallback;
-    private static DownloadCallback downloadCallback;
+    private static CheckUpdateCallback updateCallback;//检查更新回调
+    private static DownloadCallback downloadCallback;//下载回调
 
     private static Handler handler = new Handler() {
         @Override
@@ -49,8 +50,8 @@ public class HttpRequest {
                 File file = (File) data.getSerializable("file");
                 downloadCallback.onDownloadSuccess(file);
             } else if (msg.what == downloading) {
-                int current = data.getInt("current");
-                int fileLength = data.getInt("fileLength");
+                long current = data.getLong("current");
+                long fileLength = data.getLong("fileLength");
                 downloadCallback.onProgress(current, fileLength);
             } else if (msg.what == downloadFailure) {
                 downloadCallback.onDownloadFailure((String) msg.obj);
@@ -122,9 +123,15 @@ public class HttpRequest {
         }.start();
     }
 
+    /**
+     * 下载专用
+     * @param downloadPath 下载地址
+     * @param filePath 文件存储路径
+     * @param fileName 文件名
+     * @param callback 下载回调
+     */
     public static void download(@NonNull final String downloadPath, @NonNull final String filePath, @NonNull final String fileName, @NonNull final DownloadCallback callback) {
         downloadCallback = callback;
-        final Message message = new Message();
         new Thread() {
             @Override
             public void run() {
@@ -139,7 +146,15 @@ public class HttpRequest {
                     int fileLength = connection.getContentLength();
                     // 文件总长度
                     input = connection.getInputStream();
+                    File directory = new File(filePath);
+                    if(!directory.exists()){
+                        directory.mkdirs();
+                    }
                     File file = new File(filePath, fileName);
+                    //如果存在该文件,则删除
+                    if (file.exists()) {
+                        file.delete();
+                    }
                     output = new FileOutputStream(file);
                     byte data[] = new byte[4096];
                     //当前下载进度
@@ -149,19 +164,24 @@ public class HttpRequest {
                     while ((count = input.read(data)) != -1) {
                         current += count;
                         if (fileLength > 0) {
+                            //这里需要一直new新的message,不然会报错
+                            //但是这样做会消耗性能,待优化...
+                            Message message = new Message();
                             message.what = downloading;
-                            bundle.putInt("current", current);
-                            bundle.putInt("fileLength", fileLength);
+                            bundle.putLong("current", current);
+                            bundle.putLong("fileLength", fileLength);
                             message.setData(bundle);
                             handler.sendMessage(message);
                         }
                         output.write(data, 0, count);
                     }
+                    Message message = new Message();
                     message.what = downloadSuccess;
                     bundle.putSerializable("file", file);
                     message.setData(bundle);
                     handler.sendMessage(message);
                 } catch (Exception e) {
+                    Message message = new Message();
                     message.what = downloadFailure;
                     message.obj = e.toString();
                     handler.sendMessage(message);

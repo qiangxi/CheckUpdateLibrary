@@ -13,6 +13,9 @@ import android.view.View;
 
 import com.qiangxi.checkupdatelibrary.R;
 
+import java.math.BigInteger;
+import java.util.Locale;
+
 /**
  * Created by daimajia on 14-4-30.
  */
@@ -281,8 +284,8 @@ public class NumberProgressBar extends View {
     }
 
     private void calculateDrawRectF() {
-
-        mCurrentDrawText = String.format("%d", getProgress() * 100 / getMax());
+        BigInteger percent = new BigInteger(String.valueOf(mCurrentProgress)).multiply(BigInteger.valueOf(100)).divide(BigInteger.valueOf(mMaxProgress));
+        mCurrentDrawText = String.format(Locale.CHINA, "%d", percent);
         mCurrentDrawText = mPrefix + mCurrentDrawText + mSuffix;
         mDrawTextWidth = mTextPaint.measureText(mCurrentDrawText);
 
@@ -427,7 +430,7 @@ public class NumberProgressBar extends View {
             setProgress(getProgress() + by);
         }
 
-        if(mListener != null){
+        if (mListener != null) {
             mListener.onProgressChange(getProgress(), getMax());
         }
     }
@@ -498,7 +501,7 @@ public class NumberProgressBar extends View {
         return mIfDrawText;
     }
 
-    public void setOnProgressBarListener(OnProgressBarListener listener){
+    public void setOnProgressBarListener(OnProgressBarListener listener) {
         mListener = listener;
     }
 
