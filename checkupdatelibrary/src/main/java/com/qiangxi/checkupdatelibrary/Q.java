@@ -28,7 +28,7 @@ public class Q {
         if (TextUtils.equals(rm, "POST")) {
             HttpRequest.post(urlPath, callback);
         } else if (TextUtils.equals(rm, "GET")) {
-            // TODO: 2016/10/12  get请求以后提供,目前之后post请求
+            HttpRequest.get(urlPath, callback);
         } else {
             HttpRequest.post(urlPath, callback);
         }

@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * Created by qiang_xi on 2016/10/9 20:36.
@@ -125,10 +126,11 @@ public class HttpRequest {
 
     /**
      * 下载专用
+     *
      * @param downloadPath 下载地址
-     * @param filePath 文件存储路径
-     * @param fileName 文件名
-     * @param callback 下载回调
+     * @param filePath     文件存储路径
+     * @param fileName     文件名
+     * @param callback     下载回调
      */
     public static void download(@NonNull final String downloadPath, @NonNull final String filePath, @NonNull final String fileName, @NonNull final DownloadCallback callback) {
         downloadCallback = callback;
@@ -147,7 +149,7 @@ public class HttpRequest {
                     // 文件总长度
                     input = connection.getInputStream();
                     File directory = new File(filePath);
-                    if(!directory.exists()){
+                    if (!directory.exists()) {
                         directory.mkdirs();
                     }
                     File file = new File(filePath, fileName);
@@ -199,4 +201,71 @@ public class HttpRequest {
             }
         }.start();
     }
+
+    public static void get(@NonNull final String urlPath, @NonNull final CheckUpdateCallback callback) {
+        updateCallback = callback;
+        final Message message = new Message();
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                InputStream inputStream = null;
+                InputStreamReader inputStreamReader = null;
+                BufferedReader reader = null;
+                HttpURLConnection httpURLConnection = null;
+                try {
+                    URL url = new URL(urlPath);
+                    URLConnection connection = url.openConnection();
+                    httpURLConnection = (HttpURLConnection) connection;
+                    httpURLConnection.setRequestMethod("GET");
+                    httpURLConnection.setRequestProperty("Accept-Charset", "utf-8");
+                    httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                    StringBuilder sb = new StringBuilder();
+                    String tempLine = null;
+                    inputStream = httpURLConnection.getInputStream();
+                    inputStreamReader = new InputStreamReader(inputStream);
+                    reader = new BufferedReader(inputStreamReader);
+                    while ((tempLine = reader.readLine()) != null) {
+                        sb.append(tempLine);
+                    }
+                    String json = sb.toString();
+                    JSONObject object = new JSONObject(json);
+                    int newAppVersionCode = object.getInt("newAppVersionCode");
+                    int oldAppVersionCode = object.getInt("oldAppVersionCode");
+                    message.obj = json;
+                    //有更新
+                    if (newAppVersionCode > oldAppVersionCode) {
+                        message.what = hasUpdate;
+                        handler.sendMessage(message);
+                    }
+                    //无更新
+                    else {
+                        message.what = noUpdate;
+                        handler.sendMessage(message);
+                    }
+                } catch (Exception e) {
+                    message.obj = e.toString();
+                    message.what = error;
+                    handler.sendMessage(message);
+                } finally {
+                    try {
+                        if (reader != null) {
+                            reader.close();
+                        }
+                        if (inputStreamReader != null) {
+                            inputStreamReader.close();
+                        }
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                        if (httpURLConnection != null) {
+                            httpURLConnection.disconnect();
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        }.start();
+    }
 }
+

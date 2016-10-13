@@ -39,6 +39,7 @@ public class UpdateDialog extends Dialog {
     private String mVersionName;//版本名
     private float mAppSize;//软件大小
     private String mAppDesc;//更新日志
+    private String mAppName;//app名称
     private String mFilePath;//文件存储路径
     private String mFileName;//自定义的文件名
     private int mIconResId;//通知栏图标id
@@ -72,6 +73,7 @@ public class UpdateDialog extends Dialog {
     }
 
     private void initEvent() {
+        //更新
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,16 +88,17 @@ public class UpdateDialog extends Dialog {
                 intent.putExtra("fileName", mFileName);
                 intent.putExtra("iconResId", mIconResId);
                 intent.putExtra("isShowProgress", isShowProgress);
+                intent.putExtra("appName", mAppName);
                 context.startService(intent);
                 dismiss();
+                Toast.makeText(context, "正在后台为您下载", Toast.LENGTH_SHORT).show();
             }
         });
-
+        //不更新
         noUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dismiss();
-                Toast.makeText(context, "正在后台为您下载", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -197,4 +200,13 @@ public class UpdateDialog extends Dialog {
         this.isShowProgress = isShowProgress;
         return this;
     }
+
+    /**
+     * 设置软件名称
+     */
+    public UpdateDialog setAppName(String appName) {
+        this.mAppName = appName;
+        return this;
+    }
+
 }
