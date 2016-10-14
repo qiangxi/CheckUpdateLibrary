@@ -53,8 +53,6 @@ public class NetWorkUtils {
     /**
      * 描述：得到所有的WiFi列表.
      * 此方法需要如下两个权限
-     * <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-     * <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
      */
     public static List<ScanResult> getScanResults(Context context) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -74,7 +72,6 @@ public class NetWorkUtils {
     /**
      * 描述：获取连接的WIFI信息.
      * 此方法需要如下权限
-     * <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
      */
     public static WifiInfo getConnectionInfo(Context context) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
