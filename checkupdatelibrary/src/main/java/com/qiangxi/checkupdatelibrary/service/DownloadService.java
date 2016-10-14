@@ -18,6 +18,8 @@ import com.qiangxi.checkupdatelibrary.utils.ApplicationUtils;
 
 import java.io.File;
 
+import static android.app.PendingIntent.getActivity;
+
 /**
  * Created by qiang_xi on 2016/10/7 13:56.
  * 后台下载服务
@@ -90,7 +92,7 @@ public class DownloadService extends Service {
     }
 
     /**
-     * 展示下载成功通知,该通知不可被清除
+     * 展示下载成功通知,不可被清除
      *
      * @param file 下载的apk文件
      */
@@ -103,17 +105,18 @@ public class DownloadService extends Service {
         //使用兼容Notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         //配置通知内容
-        builder.setOngoing(true).setShowWhen(true).setSmallIcon(iconResId).setContentTitle(appName).setContentText("下载完成,点击安装");
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, installIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setAutoCancel(false).setShowWhen(true).setSmallIcon(iconResId).setContentTitle(appName).setContentText("下载完成,点击安装");
+        PendingIntent pendingIntent = getActivity(this, 0, installIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);
         Notification notification = builder.build();// 获取一个Notification
         notification.defaults = Notification.DEFAULT_SOUND;// 设置为默认的声音
-        notification.flags = Notification.FLAG_ONLY_ALERT_ONCE;// 发起Notification后，铃声和震动均只执行一次
+        // 发起Notification后，铃声和震动均只执行一次,且不可被清除
+        notification.flags = Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_NO_CLEAR;
         manager.notify(notificationId, notification);// 显示通知
     }
 
     /**
-     * 展示下载中的通知,该通知不可被清除
+     * 展示下载中的通知,不可被清除
      *
      * @param currentProgress 当前进度
      * @param totalProgress   总进度
@@ -121,24 +124,24 @@ public class DownloadService extends Service {
     private void showDownloadingNotification(int currentProgress, int totalProgress) {
         //使用兼容Notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        //配置通知内容
-        builder.setOngoing(true).setShowWhen(false).setSmallIcon(iconResId).setContentTitle(appName)
-                .setProgress(totalProgress, currentProgress, false);
+        //配置通知内容,这里进度要除以1000,不然当软件包太大时,字节数会找过int型限制,导致进度条进度显示异常
+        builder.setAutoCancel(false).setShowWhen(false).setSmallIcon(iconResId).setContentTitle(appName)
+                .setProgress(totalProgress / 1000, currentProgress / 1000, false);
         Notification notification = builder.build();// 获取一个Notification
         notification.defaults = Notification.DEFAULT_SOUND;// 设置为默认的声音
-        notification.flags = Notification.FLAG_ONLY_ALERT_ONCE;// 发起Notification后，铃声和震动均只执行一次
+        // 发起Notification后，铃声和震动均只执行一次,且不可被清除
+        notification.flags = Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_NO_CLEAR;
         manager.notify(notificationId, notification);// 显示通知
     }
 
     /**
-     * 展示下载失败通知,该通知可被清除
+     * 展示下载失败通知,可被清除
      *
      * @param failureMessage 错误信息
      */
     private void showDownloadFailureNotification(String failureMessage) {
         //该intent用来重新下载应用
-        Intent reDownloadIntent = new Intent(this, DownloadService.class);
-        reDownloadIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent reDownloadIntent = new Intent(DownloadService.this, DownloadService.class);
         reDownloadIntent.putExtra("downloadUrl", downloadUrl);
         reDownloadIntent.putExtra("filePath", filePath);
         reDownloadIntent.putExtra("fileName", fileName);
@@ -148,9 +151,10 @@ public class DownloadService extends Service {
         //使用兼容Notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         //配置通知内容
-        builder.setOngoing(false).setShowWhen(true).setSmallIcon(iconResId)
-                .setContentTitle(appName).setContentText("下载失败");
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, reDownloadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setAutoCancel(false).setShowWhen(true).setSmallIcon(iconResId)
+                .setContentTitle(appName).setContentText("下载失败,点击重新下载");
+        //通过PendingIntent.getService()方法,当点击通知时,打开一个service
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, reDownloadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);
         Notification notification = builder.build();// 获取一个Notification
         notification.defaults = Notification.DEFAULT_SOUND;// 设置为默认的声音

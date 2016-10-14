@@ -12,11 +12,13 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.qiangxi.checkupdatelibrary.R;
 import com.qiangxi.checkupdatelibrary.callback.DownloadCallback;
 import com.qiangxi.checkupdatelibrary.http.HttpRequest;
 import com.qiangxi.checkupdatelibrary.utils.ApplicationUtils;
+import com.qiangxi.checkupdatelibrary.utils.NetWorkUtils;
 import com.qiangxi.checkupdatelibrary.views.NumberProgressBar;
 
 import java.io.File;
@@ -34,6 +36,7 @@ public class ForceUpdateDialog extends Dialog {
     private TextView forceUpdateVersion;//版本名
     private TextView forceUpdateSize;//软件大小
     private TextView forceUpdateDesc;//更新日志
+    private TextView forceUpdateNetworkState;//网络状况
     private NumberProgressBar forceUpdateProgress;//下载进度
     private Button forceUpdate;//开始更新
     private Button exitApp;//退出应用
@@ -80,6 +83,25 @@ public class ForceUpdateDialog extends Dialog {
         forceUpdateVersion.setText("版本:" + mVersionName);
         forceUpdateSize.setText("大小:" + mAppSize + "M");
         forceUpdateDesc.setText(mAppDesc + "");
+        setNetWorkState();
+    }
+
+    /**
+     * 设置网络状态
+     */
+    private void setNetWorkState() {
+        if (NetWorkUtils.isWifiConnection(context)) {
+            forceUpdateNetworkState.setText("当前为WiFi网络环境,可放心下载.");
+            forceUpdateNetworkState.setTextColor(Color.parseColor("#629755"));
+        } else if (NetWorkUtils.isMobileConnection(context)) {
+            forceUpdateNetworkState.setText("当前为移动网络环境,下载将会消耗流量!");
+            forceUpdateNetworkState.setTextColor(Color.parseColor("#BAA029"));
+        } else if (!NetWorkUtils.hasNetConnection(context)) {
+            forceUpdateNetworkState.setText("当前无网络连接,请打开网络后重试!");
+            forceUpdateNetworkState.setTextColor(Color.RED);
+        } else {
+            forceUpdateNetworkState.setVisibility(View.GONE);
+        }
     }
 
     private void initEvent() {
@@ -98,6 +120,11 @@ public class ForceUpdateDialog extends Dialog {
                     return;
                 }
                 timeRange = System.currentTimeMillis();
+                setNetWorkState();
+                if (!NetWorkUtils.hasNetConnection(context)) {
+                    Toast.makeText(context, "当前无网络连接", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if ("点击安装".equals(forceUpdate.getText().toString().trim())) {
                     File file = new File(mFilePath, mFileName);
                     if (file.exists()) {
@@ -144,6 +171,7 @@ public class ForceUpdateDialog extends Dialog {
         forceUpdateVersion = (TextView) view.findViewById(R.id.forceUpdateVersion);
         forceUpdateSize = (TextView) view.findViewById(R.id.forceUpdateSize);
         forceUpdateDesc = (TextView) view.findViewById(R.id.forceUpdateDesc);
+        forceUpdateNetworkState = (TextView) view.findViewById(R.id.forceUpdateNetworkState);
         forceUpdateProgress = (NumberProgressBar) view.findViewById(R.id.forceUpdateProgress);
         exitApp = (Button) view.findViewById(R.id.exitApp);
         forceUpdate = (Button) view.findViewById(R.id.forceUpdate);

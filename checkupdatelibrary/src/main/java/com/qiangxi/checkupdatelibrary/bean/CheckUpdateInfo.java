@@ -13,7 +13,6 @@ public class CheckUpdateInfo {
     private String newAppUpdateDesc;//新app更新描述
     private String newAppReleaseTime;//新app发布时间
     private String newAppUrl;//新app下载地址
-    private int oldAppVersionCode;//老app版本号
     private int isForceUpdate;//是否强制更新(可自行与服务端商议,比如0表示强制更新,1表示非强制更新)
 
     public CheckUpdateInfo() {
@@ -21,7 +20,7 @@ public class CheckUpdateInfo {
 
     public CheckUpdateInfo(String appName, float newAppSize, int newAppVersionCode,
                            String newAppVersionName, String newAppUpdateDesc, String newAppReleaseTime,
-                           String newAppUrl, int oldAppVersionCode, int isForceUpdate) {
+                           String newAppUrl, int isForceUpdate) {
         this.appName = appName;
         this.newAppSize = newAppSize;
         this.newAppVersionCode = newAppVersionCode;
@@ -29,7 +28,6 @@ public class CheckUpdateInfo {
         this.newAppUpdateDesc = newAppUpdateDesc;
         this.newAppReleaseTime = newAppReleaseTime;
         this.newAppUrl = newAppUrl;
-        this.oldAppVersionCode = oldAppVersionCode;
         this.isForceUpdate = isForceUpdate;
     }
 
@@ -93,15 +91,6 @@ public class CheckUpdateInfo {
 
     public CheckUpdateInfo setNewAppUrl(String newAppUrl) {
         this.newAppUrl = newAppUrl;
-        return this;
-    }
-
-    public int getOldAppVersionCode() {
-        return oldAppVersionCode;
-    }
-
-    public CheckUpdateInfo setOldAppVersionCode(int oldAppVersionCode) {
-        this.oldAppVersionCode = oldAppVersionCode;
         return this;
     }
 

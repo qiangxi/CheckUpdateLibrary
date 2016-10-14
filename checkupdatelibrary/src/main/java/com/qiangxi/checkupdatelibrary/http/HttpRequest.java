@@ -36,6 +36,7 @@ public class HttpRequest {
 
     private static CheckUpdateCallback updateCallback;//检查更新回调
     private static DownloadCallback downloadCallback;//下载回调
+    private static long timestamp;
 
     private static Handler handler = new Handler() {
         @Override
@@ -66,10 +67,11 @@ public class HttpRequest {
     /**
      * post请求
      *
-     * @param urlPath  请求地址
-     * @param callback 请求回调
+     * @param currentVersionCode 当前应用版本号
+     * @param urlPath            请求地址
+     * @param callback           请求回调
      */
-    public static void post(@NonNull final String urlPath, @NonNull final CheckUpdateCallback callback) {
+    public static void post(final int currentVersionCode, @NonNull final String urlPath, @NonNull final CheckUpdateCallback callback) {
         updateCallback = callback;
         final Message message = new Message();
         new Thread() {
@@ -95,10 +97,9 @@ public class HttpRequest {
                     String json = sb.toString();
                     JSONObject object = new JSONObject(json);
                     int newAppVersionCode = object.getInt("newAppVersionCode");
-                    int oldAppVersionCode = object.getInt("oldAppVersionCode");
                     message.obj = json;
                     //有更新
-                    if (newAppVersionCode > oldAppVersionCode) {
+                    if (newAppVersionCode > currentVersionCode) {
                         message.what = hasUpdate;
                         handler.sendMessage(message);
                     }
@@ -165,9 +166,18 @@ public class HttpRequest {
                     Bundle bundle = new Bundle();
                     while ((count = input.read(data)) != -1) {
                         current += count;
+                        output.write(data, 0, count);
                         if (fileLength > 0) {
+                            //这里必须要进行消息发送间隔的约束,这里为1s发送一次,不然会发送大量的message,全部都在排着队,
+                            //而这造成的后果就是当下载完成时,发送的下载完成message不能及时发送出去,导致
+                            //软件已经下载完成,却不能及时回调下载完成方法,从而不能及时进行安装的bug
+                            if (current < fileLength) {
+                                if (System.currentTimeMillis() - timestamp < 1000) {
+                                    continue;
+                                }
+                            }
+                            timestamp = System.currentTimeMillis();
                             //这里需要一直new新的message,不然会报错
-                            //但是这样做会消耗性能,待优化...
                             Message message = new Message();
                             message.what = downloading;
                             bundle.putLong("current", current);
@@ -175,7 +185,6 @@ public class HttpRequest {
                             message.setData(bundle);
                             handler.sendMessage(message);
                         }
-                        output.write(data, 0, count);
                     }
                     Message message = new Message();
                     message.what = downloadSuccess;
@@ -202,7 +211,14 @@ public class HttpRequest {
         }.start();
     }
 
-    public static void get(@NonNull final String urlPath, @NonNull final CheckUpdateCallback callback) {
+    /**
+     * get请求
+     *
+     * @param currentVersionCode 当前应用版本号
+     * @param urlPath            请求地址
+     * @param callback           请求回调
+     */
+    public static void get(final int currentVersionCode, @NonNull final String urlPath, @NonNull final CheckUpdateCallback callback) {
         updateCallback = callback;
         final Message message = new Message();
         new Thread() {
@@ -231,10 +247,9 @@ public class HttpRequest {
                     String json = sb.toString();
                     JSONObject object = new JSONObject(json);
                     int newAppVersionCode = object.getInt("newAppVersionCode");
-                    int oldAppVersionCode = object.getInt("oldAppVersionCode");
                     message.obj = json;
                     //有更新
-                    if (newAppVersionCode > oldAppVersionCode) {
+                    if (newAppVersionCode > currentVersionCode) {
                         message.what = hasUpdate;
                         handler.sendMessage(message);
                     }

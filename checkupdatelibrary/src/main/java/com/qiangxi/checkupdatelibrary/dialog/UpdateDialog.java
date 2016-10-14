@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.qiangxi.checkupdatelibrary.R;
 import com.qiangxi.checkupdatelibrary.service.DownloadService;
+import com.qiangxi.checkupdatelibrary.utils.NetWorkUtils;
 
 /**
  * Created by qiang_xi on 2016/10/7 13:04.
@@ -30,6 +31,7 @@ public class UpdateDialog extends Dialog {
     private TextView updateVersion;//版本名
     private TextView updateSize;//软件大小
     private TextView updateDesc;//更新日志
+    private TextView updateNetworkState;//网络状况
     private Button update;//开始更新
     private Button noUpdate;//暂不更新
 
@@ -82,6 +84,11 @@ public class UpdateDialog extends Dialog {
                     return;
                 }
                 timeRange = System.currentTimeMillis();
+                setNetWorkState();
+                if (!NetWorkUtils.hasNetConnection(context)) {
+                    Toast.makeText(context, "当前无网络连接", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Intent intent = new Intent(context, DownloadService.class);
                 intent.putExtra("downloadUrl", mDownloadUrl);
                 intent.putExtra("filePath", mFilePath);
@@ -109,6 +116,25 @@ public class UpdateDialog extends Dialog {
         updateVersion.setText("版本:" + mVersionName);
         updateSize.setText("大小:" + mAppSize + "M");
         updateDesc.setText(mAppDesc + "");
+        setNetWorkState();
+    }
+
+    /**
+     * 设置网络状态
+     */
+    private void setNetWorkState() {
+        if (NetWorkUtils.isWifiConnection(context)) {
+            updateNetworkState.setText("当前为WiFi网络环境,可放心下载.");
+            updateNetworkState.setTextColor(Color.parseColor("#629755"));
+        } else if (NetWorkUtils.isMobileConnection(context)) {
+            updateNetworkState.setText("当前为移动网络环境,下载将会消耗流量!");
+            updateNetworkState.setTextColor(Color.parseColor("#BAA029"));
+        } else if (!NetWorkUtils.hasNetConnection(context)) {
+            updateNetworkState.setText("当前无网络连接,请打开网络后重试!");
+            updateNetworkState.setTextColor(Color.RED);
+        } else {
+            updateNetworkState.setVisibility(View.GONE);
+        }
     }
 
     private void initView() {
@@ -117,6 +143,7 @@ public class UpdateDialog extends Dialog {
         updateVersion = (TextView) view.findViewById(R.id.updateVersion);
         updateSize = (TextView) view.findViewById(R.id.updateSize);
         updateDesc = (TextView) view.findViewById(R.id.updateDesc);
+        updateNetworkState = (TextView) view.findViewById(R.id.updateNetworkState);
         update = (Button) view.findViewById(R.id.update);
         noUpdate = (Button) view.findViewById(R.id.noUpdate);
     }
@@ -208,5 +235,4 @@ public class UpdateDialog extends Dialog {
         this.mAppName = appName;
         return this;
     }
-
 }
