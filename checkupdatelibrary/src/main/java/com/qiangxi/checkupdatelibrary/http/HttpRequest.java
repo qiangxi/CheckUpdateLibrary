@@ -60,8 +60,12 @@ public class HttpRequest {
                     break;
                 //检查更新失败
                 case checkUpdateFailure:
-                    updateCallback.onCheckUpdateFailure((String) msg.obj, -1);
-                    updateCallback2.onCheckUpdateFailure((String) msg.obj);
+                    if (null != updateCallback) {
+                        updateCallback.onCheckUpdateFailure((String) msg.obj, -1);
+                    }
+                    if (null != updateCallback2) {
+                        updateCallback2.onCheckUpdateFailure((String) msg.obj);
+                    }
                     break;
                 //apk文件下载中,1s回调一次
                 case downloading:

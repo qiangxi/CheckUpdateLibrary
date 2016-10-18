@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 //        Q.checkUpdate("post", getVersionCode(), "checkUpdateUrl", new CheckUpdateCallback() {
 //            @Override
 //            public void onCheckUpdateSuccess(String result, boolean hasUpdate) {
-//                //result:服务端返回的json
+//                //result:服务端返回的json,解析成自己的实体类,当然您也可以使用checkupdatelibrary中自带的实体类CheckUpdateInfo
 //                CheckUpdateInfo checkUpdateInfo = new Gson().fromJson(result, CheckUpdateInfo.class);
 //                //有更新,显示dialog等
 //                if (hasUpdate) {
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 //        Q.checkUpdate("get", "checkUpdateUrl", new CheckUpdateCallback2() {
 //            @Override
 //            public void onCheckUpdateSuccess(String result) {
-//                //result:服务端返回的json,需要自己判断有无更新
+//                //result:服务端返回的json,需要自己判断有无更新,解析成自己的实体类进行判断是否有版本更新
 //            }
 //
 //            @Override
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 强制更新
+     * 强制更新,checkupdatelibrary中提供的默认强制更新Dialog,您完全可以自定义自己的Dialog,
      */
     public void forceUpdateDialogClick(View view) {
         mCheckUpdateInfo.setIsForceUpdate(0);
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 非强制更新
+     * 非强制更新,checkupdatelibrary中提供的默认非强制更新Dialog,您完全可以自定义自己的Dialog
      */
     public void UpdateDialogClick(View view) {
         mCheckUpdateInfo.setIsForceUpdate(1);
