@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initData() {
         //被注释的代码用来进行检查更新,这里为了方便,模拟一些假数据
+        //第一种方式
 //        Q.checkUpdate("post", getVersionCode(), "checkUpdateUrl", new CheckUpdateCallback() {
 //            @Override
 //            public void onCheckUpdateSuccess(String result, boolean hasUpdate) {
@@ -49,6 +50,19 @@ public class MainActivity extends AppCompatActivity {
 //                //errorCode:暂时没什么用
 //            }
 //        });
+        //第二种方式
+//        Q.checkUpdate("get", "checkUpdateUrl", new CheckUpdateCallback2() {
+//            @Override
+//            public void onCheckUpdateSuccess(String result) {
+//                //result:服务端返回的json,需要自己判断有无更新
+//            }
+//
+//            @Override
+//            public void onCheckUpdateFailure(String failureMessage) {
+//
+//            }
+//        });
+
         //模拟一些假数据
         mCheckUpdateInfo = new CheckUpdateInfo();
         mCheckUpdateInfo.setAppName("android检查更新库")

@@ -17,8 +17,8 @@ import android.widget.Toast;
 import com.qiangxi.checkupdatelibrary.R;
 import com.qiangxi.checkupdatelibrary.callback.DownloadCallback;
 import com.qiangxi.checkupdatelibrary.http.HttpRequest;
-import com.qiangxi.checkupdatelibrary.utils.ApplicationUtils;
-import com.qiangxi.checkupdatelibrary.utils.NetWorkUtils;
+import com.qiangxi.checkupdatelibrary.utils.ApplicationUtil;
+import com.qiangxi.checkupdatelibrary.utils.NetWorkUtil;
 import com.qiangxi.checkupdatelibrary.views.NumberProgressBar;
 
 import java.io.File;
@@ -90,13 +90,13 @@ public class ForceUpdateDialog extends Dialog {
      * 设置网络状态
      */
     private void setNetWorkState() {
-        if (NetWorkUtils.isWifiConnection(context)) {
+        if (NetWorkUtil.isWifiConnection(context)) {
             forceUpdateNetworkState.setText("当前为WiFi网络环境,可放心下载.");
             forceUpdateNetworkState.setTextColor(Color.parseColor("#629755"));
-        } else if (NetWorkUtils.isMobileConnection(context)) {
+        } else if (NetWorkUtil.isMobileConnection(context)) {
             forceUpdateNetworkState.setText("当前为移动网络环境,下载将会消耗流量!");
             forceUpdateNetworkState.setTextColor(Color.parseColor("#BAA029"));
-        } else if (!NetWorkUtils.hasNetConnection(context)) {
+        } else if (!NetWorkUtil.hasNetConnection(context)) {
             forceUpdateNetworkState.setText("当前无网络连接,请打开网络后重试!");
             forceUpdateNetworkState.setTextColor(Color.RED);
         } else {
@@ -121,14 +121,14 @@ public class ForceUpdateDialog extends Dialog {
                 }
                 timeRange = System.currentTimeMillis();
                 setNetWorkState();
-                if (!NetWorkUtils.hasNetConnection(context)) {
+                if (!NetWorkUtil.hasNetConnection(context)) {
                     Toast.makeText(context, "当前无网络连接", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if ("点击安装".equals(forceUpdate.getText().toString().trim())) {
                     File file = new File(mFilePath, mFileName);
                     if (file.exists()) {
-                        ApplicationUtils.installApk(context, file);
+                        ApplicationUtil.installApk(context, file);
                     } else {
                         download();
                     }
@@ -146,7 +146,7 @@ public class ForceUpdateDialog extends Dialog {
             public void onDownloadSuccess(File file) {
                 forceUpdate.setEnabled(true);
                 forceUpdate.setText("点击安装");
-                ApplicationUtils.installApk(context, file);
+                ApplicationUtil.installApk(context, file);
             }
 
             @Override

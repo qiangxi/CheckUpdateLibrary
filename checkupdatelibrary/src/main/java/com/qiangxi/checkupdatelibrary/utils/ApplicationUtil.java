@@ -13,8 +13,8 @@ import java.io.File;
 /**
  * 获取应用相关信息工具类
  */
-public class ApplicationUtils {
-	private ApplicationUtils() {
+public class ApplicationUtil {
+	private ApplicationUtil() {
 	}
 
 	/**

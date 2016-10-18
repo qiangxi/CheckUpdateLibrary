@@ -14,8 +14,8 @@ import java.util.List;
 /**
  * 判断网络情况工具类
  */
-public class NetWorkUtils {
-    private NetWorkUtils() {
+public class NetWorkUtil {
+    private NetWorkUtil() {
     }
 
     /**

@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 import com.qiangxi.checkupdatelibrary.R;
 import com.qiangxi.checkupdatelibrary.service.DownloadService;
-import com.qiangxi.checkupdatelibrary.utils.NetWorkUtils;
+import com.qiangxi.checkupdatelibrary.utils.NetWorkUtil;
 
 /**
  * Created by qiang_xi on 2016/10/7 13:04.
@@ -85,7 +85,7 @@ public class UpdateDialog extends Dialog {
                 }
                 timeRange = System.currentTimeMillis();
                 setNetWorkState();
-                if (!NetWorkUtils.hasNetConnection(context)) {
+                if (!NetWorkUtil.hasNetConnection(context)) {
                     Toast.makeText(context, "当前无网络连接", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -123,13 +123,13 @@ public class UpdateDialog extends Dialog {
      * 设置网络状态
      */
     private void setNetWorkState() {
-        if (NetWorkUtils.isWifiConnection(context)) {
+        if (NetWorkUtil.isWifiConnection(context)) {
             updateNetworkState.setText("当前为WiFi网络环境,可放心下载.");
             updateNetworkState.setTextColor(Color.parseColor("#629755"));
-        } else if (NetWorkUtils.isMobileConnection(context)) {
+        } else if (NetWorkUtil.isMobileConnection(context)) {
             updateNetworkState.setText("当前为移动网络环境,下载将会消耗流量!");
             updateNetworkState.setTextColor(Color.parseColor("#BAA029"));
-        } else if (!NetWorkUtils.hasNetConnection(context)) {
+        } else if (!NetWorkUtil.hasNetConnection(context)) {
             updateNetworkState.setText("当前无网络连接,请打开网络后重试!");
             updateNetworkState.setTextColor(Color.RED);
         } else {

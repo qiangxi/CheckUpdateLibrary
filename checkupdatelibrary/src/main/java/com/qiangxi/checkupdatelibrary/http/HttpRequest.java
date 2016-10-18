@@ -6,6 +6,7 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 
 import com.qiangxi.checkupdatelibrary.callback.CheckUpdateCallback;
+import com.qiangxi.checkupdatelibrary.callback.CheckUpdateCallback2;
 import com.qiangxi.checkupdatelibrary.callback.DownloadCallback;
 
 import org.json.JSONObject;
@@ -32,9 +33,11 @@ public class HttpRequest {
     private static final int downloadSuccess = 2;
     private static final int downloading = 3;
     private static final int downloadFailure = 4;
-    private static final int error = -1;
+    private static final int checkSuccess = 5;
+    private static final int checkUpdateFailure = -1;
 
     private static CheckUpdateCallback updateCallback;//检查更新回调
+    private static CheckUpdateCallback2 updateCallback2;//检查更新回调
     private static DownloadCallback downloadCallback;//下载回调
     private static long timestamp;
 
@@ -42,21 +45,36 @@ public class HttpRequest {
         @Override
         public void handleMessage(Message msg) {
             Bundle data = msg.getData();
-            if (msg.what == hasUpdate) {
-                updateCallback.onCheckUpdateSuccess((String) msg.obj, true);
-            } else if (msg.what == noUpdate) {
-                updateCallback.onCheckUpdateSuccess((String) msg.obj, false);
-            } else if (msg.what == error) {
-                updateCallback.onCheckUpdateFailure((String) msg.obj, -1);
-            } else if (msg.what == downloadSuccess) {
-                File file = (File) data.getSerializable("file");
-                downloadCallback.onDownloadSuccess(file);
-            } else if (msg.what == downloading) {
-                long current = data.getLong("current");
-                long fileLength = data.getLong("fileLength");
-                downloadCallback.onProgress(current, fileLength);
-            } else if (msg.what == downloadFailure) {
-                downloadCallback.onDownloadFailure((String) msg.obj);
+            switch (msg.what) {
+                //检查更新成功
+                case checkSuccess:
+                    updateCallback2.onCheckUpdateSuccess((String) msg.obj);
+                    break;
+                //有更新
+                case hasUpdate:
+                    updateCallback.onCheckUpdateSuccess((String) msg.obj, true);
+                    break;
+                //无更新
+                case noUpdate:
+                    updateCallback.onCheckUpdateSuccess((String) msg.obj, false);
+                    break;
+                //检查更新失败
+                case checkUpdateFailure:
+                    updateCallback.onCheckUpdateFailure((String) msg.obj, -1);
+                    updateCallback2.onCheckUpdateFailure((String) msg.obj);
+                    break;
+                //apk文件下载中,1s回调一次
+                case downloading:
+                    downloadCallback.onProgress(data.getLong("currentLength"), data.getLong("fileLength"));
+                    break;
+                //apk文件下载成功
+                case downloadSuccess:
+                    downloadCallback.onDownloadSuccess((File) data.getSerializable("file"));
+                    break;
+                //apk文件下载失败
+                case downloadFailure:
+                    downloadCallback.onDownloadFailure((String) msg.obj);
+                    break;
             }
         }
     };
@@ -64,8 +82,9 @@ public class HttpRequest {
     private HttpRequest() {
     }
 
+
     /**
-     * post请求
+     * post请求检查更新,实体类中必须要有newAppVersionCode字段,不然检查不到更新
      *
      * @param currentVersionCode 当前应用版本号
      * @param urlPath            请求地址
@@ -110,7 +129,7 @@ public class HttpRequest {
                     }
                 } catch (Exception e) {
                     message.obj = e.toString();
-                    message.what = error;
+                    message.what = checkUpdateFailure;
                     handler.sendMessage(message);
                 } finally {
                     if (bufferedReader != null) {
@@ -119,6 +138,187 @@ public class HttpRequest {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                    }
+                }
+            }
+        }.start();
+    }
+
+    /**
+     * post请求检查更新,实体类可以任意自定义,不需要有newAppVersionCode字段,所以扩展性更强,但是需要自己进行是否有更新的判断
+     *
+     * @param urlPath  请求地址
+     * @param callback 请求回调
+     */
+    public static void post(final String urlPath, CheckUpdateCallback2 callback) {
+        updateCallback2 = callback;
+        final Message message = new Message();
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                BufferedReader bufferedReader = null;
+                try {
+                    URL httpUrl = new URL(urlPath);
+                    HttpURLConnection httpURLConnection = (HttpURLConnection) httpUrl.openConnection();
+                    //设置请求头header
+                    httpURLConnection.setRequestProperty("test-header", "post-header-value");
+                    httpURLConnection.setRequestMethod("POST");
+                    httpURLConnection.setReadTimeout(5000);
+                    //获取内容
+                    InputStream inputStream = httpURLConnection.getInputStream();
+                    bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    final StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    message.obj = sb.toString();
+                    message.what = checkSuccess;
+                    handler.sendMessage(message);
+                } catch (Exception e) {
+                    message.obj = e.toString();
+                    message.what = checkUpdateFailure;
+                    handler.sendMessage(message);
+                } finally {
+                    if (bufferedReader != null) {
+                        try {
+                            bufferedReader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }.start();
+    }
+
+    /**
+     * get请求检查更新,实体类中必须要有newAppVersionCode字段,不然检查不到更新
+     *
+     * @param currentVersionCode 当前应用版本号
+     * @param urlPath            请求地址
+     * @param callback           请求回调
+     */
+    public static void get(final int currentVersionCode, @NonNull final String urlPath, @NonNull final CheckUpdateCallback callback) {
+        updateCallback = callback;
+        final Message message = new Message();
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                InputStream inputStream = null;
+                InputStreamReader inputStreamReader = null;
+                BufferedReader reader = null;
+                HttpURLConnection httpURLConnection = null;
+                try {
+                    URL url = new URL(urlPath);
+                    URLConnection connection = url.openConnection();
+                    httpURLConnection = (HttpURLConnection) connection;
+                    httpURLConnection.setRequestMethod("GET");
+                    httpURLConnection.setRequestProperty("Accept-Charset", "utf-8");
+                    httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                    StringBuilder sb = new StringBuilder();
+                    String tempLine = null;
+                    inputStream = httpURLConnection.getInputStream();
+                    inputStreamReader = new InputStreamReader(inputStream);
+                    reader = new BufferedReader(inputStreamReader);
+                    while ((tempLine = reader.readLine()) != null) {
+                        sb.append(tempLine);
+                    }
+                    String json = sb.toString();
+                    JSONObject object = new JSONObject(json);
+                    int newAppVersionCode = object.getInt("newAppVersionCode");
+                    message.obj = json;
+                    //有更新
+                    if (newAppVersionCode > currentVersionCode) {
+                        message.what = hasUpdate;
+                        handler.sendMessage(message);
+                    }
+                    //无更新
+                    else {
+                        message.what = noUpdate;
+                        handler.sendMessage(message);
+                    }
+                } catch (Exception e) {
+                    message.obj = e.toString();
+                    message.what = checkUpdateFailure;
+                    handler.sendMessage(message);
+                } finally {
+                    try {
+                        if (reader != null) {
+                            reader.close();
+                        }
+                        if (inputStreamReader != null) {
+                            inputStreamReader.close();
+                        }
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                        if (httpURLConnection != null) {
+                            httpURLConnection.disconnect();
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        }.start();
+    }
+
+    /**
+     * get请求检查更新,实体类可以任意自定义,不需要有newAppVersionCode字段,所以扩展性更强,但是需要自己进行是否有更新的判断
+     *
+     * @param urlPath  请求地址
+     * @param callback 请求回调
+     */
+    public static void get(final String urlPath, CheckUpdateCallback2 callback) {
+        updateCallback2 = callback;
+        final Message message = new Message();
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                InputStream inputStream = null;
+                InputStreamReader inputStreamReader = null;
+                BufferedReader reader = null;
+                HttpURLConnection httpURLConnection = null;
+                try {
+                    URL url = new URL(urlPath);
+                    URLConnection connection = url.openConnection();
+                    httpURLConnection = (HttpURLConnection) connection;
+                    httpURLConnection.setRequestMethod("GET");
+                    httpURLConnection.setRequestProperty("Accept-Charset", "utf-8");
+                    httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                    StringBuilder sb = new StringBuilder();
+                    String tempLine = null;
+                    inputStream = httpURLConnection.getInputStream();
+                    inputStreamReader = new InputStreamReader(inputStream);
+                    reader = new BufferedReader(inputStreamReader);
+                    while ((tempLine = reader.readLine()) != null) {
+                        sb.append(tempLine);
+                    }
+                    message.obj = sb.toString();
+                    message.what = checkSuccess;
+                    handler.sendMessage(message);
+                } catch (Exception e) {
+                    message.obj = e.toString();
+                    message.what = checkUpdateFailure;
+                    handler.sendMessage(message);
+                } finally {
+                    try {
+                        if (reader != null) {
+                            reader.close();
+                        }
+                        if (inputStreamReader != null) {
+                            inputStreamReader.close();
+                        }
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                        if (httpURLConnection != null) {
+                            httpURLConnection.disconnect();
+                        }
+                    } catch (Exception ignored) {
                     }
                 }
             }
@@ -180,7 +380,7 @@ public class HttpRequest {
                             //这里需要一直new新的message,不然会报错
                             Message message = new Message();
                             message.what = downloading;
-                            bundle.putLong("current", current);
+                            bundle.putLong("currentLength", current);
                             bundle.putLong("fileLength", fileLength);
                             message.setData(bundle);
                             handler.sendMessage(message);
@@ -206,78 +406,6 @@ public class HttpRequest {
                     }
                     if (connection != null)
                         connection.disconnect();
-                }
-            }
-        }.start();
-    }
-
-    /**
-     * get请求
-     *
-     * @param currentVersionCode 当前应用版本号
-     * @param urlPath            请求地址
-     * @param callback           请求回调
-     */
-    public static void get(final int currentVersionCode, @NonNull final String urlPath, @NonNull final CheckUpdateCallback callback) {
-        updateCallback = callback;
-        final Message message = new Message();
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                InputStream inputStream = null;
-                InputStreamReader inputStreamReader = null;
-                BufferedReader reader = null;
-                HttpURLConnection httpURLConnection = null;
-                try {
-                    URL url = new URL(urlPath);
-                    URLConnection connection = url.openConnection();
-                    httpURLConnection = (HttpURLConnection) connection;
-                    httpURLConnection.setRequestMethod("GET");
-                    httpURLConnection.setRequestProperty("Accept-Charset", "utf-8");
-                    httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                    StringBuilder sb = new StringBuilder();
-                    String tempLine = null;
-                    inputStream = httpURLConnection.getInputStream();
-                    inputStreamReader = new InputStreamReader(inputStream);
-                    reader = new BufferedReader(inputStreamReader);
-                    while ((tempLine = reader.readLine()) != null) {
-                        sb.append(tempLine);
-                    }
-                    String json = sb.toString();
-                    JSONObject object = new JSONObject(json);
-                    int newAppVersionCode = object.getInt("newAppVersionCode");
-                    message.obj = json;
-                    //有更新
-                    if (newAppVersionCode > currentVersionCode) {
-                        message.what = hasUpdate;
-                        handler.sendMessage(message);
-                    }
-                    //无更新
-                    else {
-                        message.what = noUpdate;
-                        handler.sendMessage(message);
-                    }
-                } catch (Exception e) {
-                    message.obj = e.toString();
-                    message.what = error;
-                    handler.sendMessage(message);
-                } finally {
-                    try {
-                        if (reader != null) {
-                            reader.close();
-                        }
-                        if (inputStreamReader != null) {
-                            inputStreamReader.close();
-                        }
-                        if (inputStream != null) {
-                            inputStream.close();
-                        }
-                        if (httpURLConnection != null) {
-                            httpURLConnection.disconnect();
-                        }
-                    } catch (Exception ignored) {
-                    }
                 }
             }
         }.start();
