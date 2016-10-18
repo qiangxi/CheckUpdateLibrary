@@ -17,14 +17,17 @@
 1,零耦合:CheckUpdateLibrary从检查更新到下载更新全部采用HttpURLConnection,Dialog同样自定义,没有引入任何其他第三方库,而其他库要么是用的第三方网络请求框架,要么用的是别人封装好的dialog.所以开发者可能会吐槽,这只是一个单纯的检查更新和下载更新功能,我却需要多引入很多第三方库,这无形之中增加了我APK的体积,我很不爽!!!而用这个库,开发者完全不用担心这些.  
 2,体积小:基于第一点,所以CheckUpdateLibrary库体积超小,只有10多kb  
 3,兼容6.0:因为使用的是HttpURLConnection,所以6.0系统同样适配  
-4,可扩展性:CheckUpdateLibrary内置了一个实体类CheckUpdateInfo,用来接收检查更新时返回的json数据,当然前提得和服务端商定好,对接好字段.而如果不想使用内置实体,开发者完全可以自定义自己的实体类,但是必须保证自定义的实体类中包含newAppVersionCode字段,该字段在库中用来判断是否有更新,所以必须包含,不然会检查不到是否有更新.目前CheckUpdateLibrary只支持实体类的扩展,Dialog还只能用它提供的.  
+4,可扩展性:CheckUpdateLibrary具有超强扩展性,下面会单独一个标题细说.  
 5,其他功能:比如可以自定义apk文件的存储路径,文件名,后台下载时是否在通知栏显示实时下载进度等.  
-
+##扩展性:  
+CheckUpdateLibrary具有超强扩展性:  
+1,CheckUpdateLibrary有两种方式进行检查更新,对应着两种回调方式:CheckUpdateCallback和CheckUpdateCallback2,前者为了使用方便,所以需要开发者必须保证自定义的实体类中包含newAppVersionCode字段,该字段在库中用来判断是否有更新,而如果开发者想完全自定义实体,那么可以使用后者,即CheckUpdateCallback2,但是需要自己进行判断是否软件有更新.  
+2,可自定义Dialog.虽然CheckUpdateLibrary中提供了两种Dialog:ForceUpdateDialog和UpdateDialg用来展示强制更新和非强制更新对话框,但还是会有很多开发者想使用自己自定义的Dialog,然后借助于CheckUpdateLibrary中的后台下载功能和通知展示功能来实现后台下载,而CheckUpdateLibrary也考虑到开发者的这种需求,开发者只需要继承CheckUpdateLibrary中的BaseService,然后实现相关方法即可实现自己的需求,具体的使用方式请参考下面的教程.  
 ##用法:  
 ####Android Studio添加依赖:  
 ```groovy
  dependencies {  
-    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.0.2' 
+    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.0.3' 
     }
 ```
 ####Eclipse:  
@@ -59,7 +62,18 @@ Q.checkUpdate("post", getVersionCode(), "checkUpdateUrl", new CheckUpdateCallbac
             }
         });
 ```  
-
+**或**
+```java  
+Q.checkUpdate("post", "checkUpdateUrl", new CheckUpdateCallback2() {
+    @Override
+    public void onCheckUpdateSuccess(String result) {
+        //result:服务端返回的json,需要自己判断有无更新,解析成自己的实体类进行判断是否有版本更新
+    }
+    @Override
+    public void onCheckUpdateFailure(String failureMessage) {
+    }
+});  
+```  
 ####强制更新对话框:  
 ```java
 ForceUpdateDialog dialog = new ForceUpdateDialog(MainActivity.this);
@@ -93,5 +107,141 @@ UpdateDialog dialog = new UpdateDialog(MainActivity.this);
                     .setAppName(mCheckUpdateInfo.getAppName())
                     .show();
 ```  
-##Issues
-各位小伙伴使用过程中有任何问题或发现什么bug或有什么好的意见或建议,请通过上面的issue提交给我,谢谢啦~~
+####使用自定义Dialog:  
+#####对于强制更新方式:  
+**step1:**自定义自己的Dialog,这个就不贴代码了,大家应该都会  
+**step2:**在自定义的dialog中,比如button1是用来下载文件的,那么可以使用HttpRequest类中提供的download方法,然后在各个回调中实现自己的逻辑,比如进度条监听,下载完成后安装等,示例代码如下:  
+```java  
+button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //防抖动,两次点击间隔小于500ms都return;
+                if (System.currentTimeMillis() - timeRange < 500) {
+                    return;
+                }
+                timeRange = System.currentTimeMillis();
+                setNetWorkState();
+                if (!NetWorkUtil.hasNetConnection(context)) {
+                    Toast.makeText(context, "当前无网络连接", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if ("点击安装".equals(button1.getText().toString().trim())) {
+                    File file = new File(mFilePath, mFileName);
+                    if (file.exists()) {
+                        ApplicationUtil.installApk(context, file);
+                    } else {
+                        download();
+                    }
+                    return;
+                }
+                download();
+            }
+        });  
+private void download() {
+        forceUpdateProgress.setVisibility(View.VISIBLE);
+        HttpRequest.download(mDownloadUrl, mFilePath, mFileName, new DownloadCallback() {
+            @Override
+            public void onDownloadSuccess(File file) {
+                button1.setEnabled(true);
+                button1.setText("点击安装");
+                ApplicationUtil.installApk(context, file);
+            }
+
+            @Override
+            public void onProgress(long currentProgress, long totalProgress) {
+                button1.setEnabled(false);
+                button1.setText("正在下载");
+                forceUpdateProgress.setProgress((int) (currentProgress));
+                forceUpdateProgress.setMax((int) (totalProgress));
+            }
+
+            @Override
+            public void onDownloadFailure(String failureMessage) {
+                button1.setEnabled(true);
+                button1.setText("重新下载");
+            }
+        });
+    }  
+```  
+#####对于非强制更新方式:  
+**step1:**自定义自己的Dialog,这个就不贴代码了,大家应该都会  
+**step2:**继承CheckUpdateLibrary中的BaseService,实现相关方法,其中Service中自带的方法onStartCommand必须重写,一会说为什么.  
+示例代码如下:  
+```java  
+public class DownloadService extends BaseService {
+    private int iconResId;
+    private String appName;
+    private Intent mIntent;
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (null == intent) {
+            return START_NOT_STICKY;
+        }
+        mIntent = intent;
+        appName = intent.getStringExtra("appName");
+        iconResId = intent.getIntExtra("iconResId", -1);
+        if (iconResId == -1) {
+            iconResId = R.drawable.icon_downloading;
+        }
+        download(intent.getStringExtra("downloadUrl"), intent.getStringExtra("filePath"), intent.getStringExtra("fileName"), true);
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void downloadFailure(String failureMessage) {
+        NotificationUtil.showDownloadFailureNotification(this, mIntent, iconResId, appName, "下载失败,点击重新下载", true);
+    }
+
+    @Override
+    public void downloadSuccess(File file) {
+        NotificationUtil.showDownloadSuccessNotification(this, file, iconResId, appName, "下载完成,点击安装", false);
+    }
+
+    @Override
+    public void downloading(int currentProgress, int totalProgress) {
+        NotificationUtil.showDownloadingNotification(this, currentProgress, totalProgress, iconResId, appName, false);
+    }
+}
+```  
+**step3**:在自定义的dialog中,比如button1是用来下载文件的,那么可以这么写:  
+```java  
+button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //防抖动,两次点击间隔小于1s都return;
+                if (System.currentTimeMillis() - timeRange < 1000) {
+                    return;
+                }
+                timeRange = System.currentTimeMillis();
+                setNetWorkState();
+                if (!NetWorkUtil.hasNetConnection(context)) {
+                    Toast.makeText(context, "当前无网络连接", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Intent intent = new Intent(context, DownloadService.class);
+                intent.putExtra("downloadUrl", mDownloadUrl);
+                intent.putExtra("filePath", mFilePath);
+                intent.putExtra("fileName", mFileName);
+                intent.putExtra("iconResId", mIconResId);
+                intent.putExtra("isShowProgress", isShowProgress);
+                intent.putExtra("appName", mAppName);
+                context.startService(intent);
+                dismiss();
+                Toast.makeText(context, "正在后台为您下载", Toast.LENGTH_SHORT).show();
+            }
+        });  
+```  
+ok,到此,自定义非强制更新Dialog的后台下载功能就实现了.  
+######下面说一说为什么必须要重写onStartCommand方法,主要有两点原因:  
+**1,**其实从上面的代码也可以看出,启动Service采用的是context.startService(intent);方法,而不是bind方法,所以在Service中接收intent必须重写onStartCommand方法才行.  
+**2,**如果下载失败时,点击通知是可以重新下载应用的,其中应用到PendingIntent.getService()方法,而该方法启动Service就是通过context.startService(intent);方式启动的,所以从这一点出发,仍然必须重写onStartCommand方法才行.  
+##Issues  
+各位小伙伴使用过程中有任何问题或发现什么bug或有什么好的意见或建议,请通过上面的issue提交给我,谢谢啦~~  
+另外,跪求Star或Fork,这是对开发者最好的激励!!!
