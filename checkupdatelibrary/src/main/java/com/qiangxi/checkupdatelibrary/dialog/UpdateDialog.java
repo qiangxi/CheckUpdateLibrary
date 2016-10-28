@@ -1,11 +1,16 @@
 package com.qiangxi.checkupdatelibrary.dialog;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -48,6 +53,8 @@ public class UpdateDialog extends Dialog {
     private boolean isShowProgress = false;//是否在通知栏显示下载进度,默认不显示
     private long timeRange;//时间间隔
 
+    public static final int UPDATE_DIALOG_PERMISSION_REQUEST_CODE = 0;//权限请求码
+
     public UpdateDialog(Context context) {
         super(context);
         setDialogTheme();
@@ -79,26 +86,15 @@ public class UpdateDialog extends Dialog {
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //防抖动,两次点击间隔小于1s都return;
-                if (System.currentTimeMillis() - timeRange < 1000) {
-                    return;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    int permissionStatus = ActivityCompat.checkSelfPermission(context, Manifest.permission_group.STORAGE);
+                    if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.
+                                WRITE_EXTERNAL_STORAGE}, UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
+                    }
+                } else {
+                    download();
                 }
-                timeRange = System.currentTimeMillis();
-                setNetWorkState();
-                if (!NetWorkUtil.hasNetConnection(context)) {
-                    Toast.makeText(context, "当前无网络连接", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Intent intent = new Intent(context, DownloadService.class);
-                intent.putExtra("downloadUrl", mDownloadUrl);
-                intent.putExtra("filePath", mFilePath);
-                intent.putExtra("fileName", mFileName);
-                intent.putExtra("iconResId", mIconResId);
-                intent.putExtra("isShowProgress", isShowProgress);
-                intent.putExtra("appName", mAppName);
-                context.startService(intent);
-                dismiss();
-                Toast.makeText(context, "正在后台为您下载", Toast.LENGTH_SHORT).show();
             }
         });
         //不更新
@@ -108,6 +104,29 @@ public class UpdateDialog extends Dialog {
                 dismiss();
             }
         });
+    }
+
+    public void download() {
+        //防抖动,两次点击间隔小于1s都return;
+        if (System.currentTimeMillis() - timeRange < 1000) {
+            return;
+        }
+        timeRange = System.currentTimeMillis();
+        setNetWorkState();
+        if (!NetWorkUtil.hasNetConnection(context)) {
+            Toast.makeText(context, "当前无网络连接", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = new Intent(context, DownloadService.class);
+        intent.putExtra("downloadUrl", mDownloadUrl);
+        intent.putExtra("filePath", mFilePath);
+        intent.putExtra("fileName", mFileName);
+        intent.putExtra("iconResId", mIconResId);
+        intent.putExtra("isShowProgress", isShowProgress);
+        intent.putExtra("appName", mAppName);
+        context.startService(intent);
+        dismiss();
+        Toast.makeText(context, "正在后台为您下载...", Toast.LENGTH_SHORT).show();
     }
 
     private void initData() {

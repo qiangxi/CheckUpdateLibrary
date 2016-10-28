@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.qiangxi.checkupdatelibrary.callback.CheckUpdateCallback;
 import com.qiangxi.checkupdatelibrary.callback.CheckUpdateCallback2;
@@ -12,6 +13,7 @@ import com.qiangxi.checkupdatelibrary.callback.DownloadCallback;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -21,6 +23,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 
 /**
  * Created by qiang_xi on 2016/10/9 20:36.
@@ -36,8 +39,10 @@ public class HttpRequest {
     private static final int checkSuccess = 5;
     private static final int checkUpdateFailure = -1;
 
+    private final static int CONNECTION_TIME_OUT = 10000;//连接超时时间
+    private final static int READ_TIME_OUT = 10000;//读取超时时间
     private static CheckUpdateCallback updateCallback;//检查更新回调
-    private static CheckUpdateCallback2 updateCallback2;//检查更新回调
+    private static CheckUpdateCallback2 updateCallback2;//检查更新回调2
     private static DownloadCallback downloadCallback;//下载回调
     private static long timestamp;
 
@@ -92,9 +97,10 @@ public class HttpRequest {
      *
      * @param currentVersionCode 当前应用版本号
      * @param urlPath            请求地址
+     * @param params             请求参数
      * @param callback           请求回调
      */
-    public static void post(final int currentVersionCode, @NonNull final String urlPath, @NonNull final CheckUpdateCallback callback) {
+    public static void post(final int currentVersionCode, @NonNull final String urlPath, final Map<String, String> params, @NonNull final CheckUpdateCallback callback) {
         updateCallback = callback;
         final Message message = new Message();
         new Thread() {
@@ -102,15 +108,39 @@ public class HttpRequest {
             public void run() {
                 super.run();
                 BufferedReader bufferedReader = null;
+                InputStream inputStream = null;
+                HttpURLConnection httpURLConnection = null;
+                DataOutputStream dos = null;
                 try {
+                    //拼接请求参数
+                    StringBuilder builder = new StringBuilder();
+                    if (null != params && params.size() > 0) {
+                        String[] keys = params.keySet().toArray(new String[params.size()]);
+                        String[] values = params.values().toArray(new String[params.size()]);
+                        for (int i = 0; i < params.size(); i++) {
+                            if (i == params.size() - 1) {
+                                builder.append(keys[i]).append("=").append(values[i]);
+                            } else {
+                                builder.append(keys[i]).append("=").append(values[i]).append("&");
+                            }
+                        }
+                    }
                     URL httpUrl = new URL(urlPath);
-                    HttpURLConnection httpURLConnection = (HttpURLConnection) httpUrl.openConnection();
+                    httpURLConnection = (HttpURLConnection) httpUrl.openConnection();
                     //设置请求头header
                     httpURLConnection.setRequestProperty("test-header", "post-header-value");
                     httpURLConnection.setRequestMethod("POST");
-                    httpURLConnection.setReadTimeout(5000);
+                    httpURLConnection.setDoOutput(true);
+                    httpURLConnection.setReadTimeout(READ_TIME_OUT);
+                    httpURLConnection.setConnectTimeout(CONNECTION_TIME_OUT);
+                    //若参数不为空,则写入参数
+                    if (!TextUtils.isEmpty(builder.toString())) {
+                        dos = new DataOutputStream(httpURLConnection.getOutputStream());
+                        dos.write(builder.toString().getBytes("utf-8"));
+                        dos.flush();
+                    }
                     //获取内容
-                    InputStream inputStream = httpURLConnection.getInputStream();
+                    inputStream = httpURLConnection.getInputStream();
                     bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                     final StringBuilder sb = new StringBuilder();
                     String line;
@@ -136,12 +166,21 @@ public class HttpRequest {
                     message.what = checkUpdateFailure;
                     handler.sendMessage(message);
                 } finally {
-                    if (bufferedReader != null) {
-                        try {
+                    try {
+                        if (bufferedReader != null) {
                             bufferedReader.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                        if (httpURLConnection != null) {
+                            httpURLConnection.disconnect();
+                        }
+                        if (dos != null) {
+                            dos.close();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -152,9 +191,10 @@ public class HttpRequest {
      * post请求检查更新,实体类可以任意自定义,不需要有newAppVersionCode字段,所以扩展性更强,但是需要自己进行是否有更新的判断
      *
      * @param urlPath  请求地址
+     * @param params   请求参数
      * @param callback 请求回调
      */
-    public static void post(final String urlPath, CheckUpdateCallback2 callback) {
+    public static void post(final String urlPath, final Map<String, String> params, CheckUpdateCallback2 callback) {
         updateCallback2 = callback;
         final Message message = new Message();
         new Thread() {
@@ -162,15 +202,39 @@ public class HttpRequest {
             public void run() {
                 super.run();
                 BufferedReader bufferedReader = null;
+                InputStream inputStream = null;
+                HttpURLConnection httpURLConnection = null;
+                DataOutputStream dos = null;
                 try {
+                    //拼接请求参数
+                    StringBuilder builder = new StringBuilder();
+                    if (null != params && params.size() > 0) {
+                        String[] keys = params.keySet().toArray(new String[params.size()]);
+                        String[] values = params.values().toArray(new String[params.size()]);
+                        for (int i = 0; i < params.size(); i++) {
+                            if (i == params.size() - 1) {
+                                builder.append(keys[i]).append("=").append(values[i]);
+                            } else {
+                                builder.append(keys[i]).append("=").append(values[i]).append("&");
+                            }
+                        }
+                    }
                     URL httpUrl = new URL(urlPath);
-                    HttpURLConnection httpURLConnection = (HttpURLConnection) httpUrl.openConnection();
+                    httpURLConnection = (HttpURLConnection) httpUrl.openConnection();
                     //设置请求头header
                     httpURLConnection.setRequestProperty("test-header", "post-header-value");
                     httpURLConnection.setRequestMethod("POST");
-                    httpURLConnection.setReadTimeout(5000);
+                    httpURLConnection.setDoOutput(true);
+                    httpURLConnection.setReadTimeout(READ_TIME_OUT);
+                    httpURLConnection.setConnectTimeout(CONNECTION_TIME_OUT);
+                    //若参数不为空,则写入参数
+                    if (!TextUtils.isEmpty(builder.toString())) {
+                        dos = new DataOutputStream(httpURLConnection.getOutputStream());
+                        dos.write(builder.toString().getBytes("utf-8"));
+                        dos.flush();
+                    }
                     //获取内容
-                    InputStream inputStream = httpURLConnection.getInputStream();
+                    inputStream = httpURLConnection.getInputStream();
                     bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                     final StringBuilder sb = new StringBuilder();
                     String line;
@@ -185,12 +249,21 @@ public class HttpRequest {
                     message.what = checkUpdateFailure;
                     handler.sendMessage(message);
                 } finally {
-                    if (bufferedReader != null) {
-                        try {
+                    try {
+                        if (bufferedReader != null) {
                             bufferedReader.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                        if (httpURLConnection != null) {
+                            httpURLConnection.disconnect();
+                        }
+                        if (dos != null) {
+                            dos.close();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -202,9 +275,10 @@ public class HttpRequest {
      *
      * @param currentVersionCode 当前应用版本号
      * @param urlPath            请求地址
+     * @param params             请求参数
      * @param callback           请求回调
      */
-    public static void get(final int currentVersionCode, @NonNull final String urlPath, @NonNull final CheckUpdateCallback callback) {
+    public static void get(final int currentVersionCode, @NonNull final String urlPath, final Map<String, String> params, @NonNull final CheckUpdateCallback callback) {
         updateCallback = callback;
         final Message message = new Message();
         new Thread() {
@@ -216,12 +290,30 @@ public class HttpRequest {
                 BufferedReader reader = null;
                 HttpURLConnection httpURLConnection = null;
                 try {
-                    URL url = new URL(urlPath);
+                    String urlStr;
+                    StringBuilder builder = new StringBuilder();
+                    if (null != params && params.size() > 0) {
+                        String[] keys = params.keySet().toArray(new String[params.size()]);
+                        String[] values = params.values().toArray(new String[params.size()]);
+                        for (int i = 0; i < params.size(); i++) {
+                            if (i == params.size() - 1) {
+                                builder.append(keys[i]).append("=").append(values[i]);
+                            } else {
+                                builder.append(keys[i]).append("=").append(values[i]).append("&");
+                            }
+                        }
+                        urlStr = urlPath + "?" + builder.toString();
+                    } else {
+                        urlStr = urlPath;
+                    }
+                    URL url = new URL(urlStr);
                     URLConnection connection = url.openConnection();
                     httpURLConnection = (HttpURLConnection) connection;
                     httpURLConnection.setRequestMethod("GET");
                     httpURLConnection.setRequestProperty("Accept-Charset", "utf-8");
                     httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                    httpURLConnection.setReadTimeout(READ_TIME_OUT);
+                    httpURLConnection.setConnectTimeout(CONNECTION_TIME_OUT);
                     StringBuilder sb = new StringBuilder();
                     String tempLine = null;
                     inputStream = httpURLConnection.getInputStream();
@@ -273,9 +365,10 @@ public class HttpRequest {
      * get请求检查更新,实体类可以任意自定义,不需要有newAppVersionCode字段,所以扩展性更强,但是需要自己进行是否有更新的判断
      *
      * @param urlPath  请求地址
+     * @param params   请求参数
      * @param callback 请求回调
      */
-    public static void get(final String urlPath, CheckUpdateCallback2 callback) {
+    public static void get(final String urlPath, final Map<String, String> params, CheckUpdateCallback2 callback) {
         updateCallback2 = callback;
         final Message message = new Message();
         new Thread() {
@@ -287,12 +380,30 @@ public class HttpRequest {
                 BufferedReader reader = null;
                 HttpURLConnection httpURLConnection = null;
                 try {
-                    URL url = new URL(urlPath);
+                    String urlStr;
+                    StringBuilder builder = new StringBuilder();
+                    if (null != params && params.size() > 0) {
+                        String[] keys = params.keySet().toArray(new String[params.size()]);
+                        String[] values = params.values().toArray(new String[params.size()]);
+                        for (int i = 0; i < params.size(); i++) {
+                            if (i == params.size() - 1) {
+                                builder.append(keys[i]).append("=").append(values[i]);
+                            } else {
+                                builder.append(keys[i]).append("=").append(values[i]).append("&");
+                            }
+                        }
+                        urlStr = urlPath + "?" + builder.toString();
+                    } else {
+                        urlStr = urlPath;
+                    }
+                    URL url = new URL(urlStr);
                     URLConnection connection = url.openConnection();
                     httpURLConnection = (HttpURLConnection) connection;
                     httpURLConnection.setRequestMethod("GET");
                     httpURLConnection.setRequestProperty("Accept-Charset", "utf-8");
                     httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                    httpURLConnection.setReadTimeout(READ_TIME_OUT);
+                    httpURLConnection.setConnectTimeout(CONNECTION_TIME_OUT);
                     StringBuilder sb = new StringBuilder();
                     String tempLine = null;
                     inputStream = httpURLConnection.getInputStream();
@@ -406,10 +517,10 @@ public class HttpRequest {
                             output.close();
                         if (input != null)
                             input.close();
+                        if (connection != null)
+                            connection.disconnect();
                     } catch (IOException ignored) {
                     }
-                    if (connection != null)
-                        connection.disconnect();
                 }
             }
         }.start();

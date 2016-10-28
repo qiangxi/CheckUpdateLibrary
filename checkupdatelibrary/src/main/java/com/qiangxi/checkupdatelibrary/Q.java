@@ -1,11 +1,14 @@
 package com.qiangxi.checkupdatelibrary;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.qiangxi.checkupdatelibrary.callback.CheckUpdateCallback;
 import com.qiangxi.checkupdatelibrary.callback.CheckUpdateCallback2;
 import com.qiangxi.checkupdatelibrary.http.HttpRequest;
+
+import java.util.Map;
 
 /**
  * Created by qiang_xi on 2016/10/6 13:07.
@@ -13,6 +16,9 @@ import com.qiangxi.checkupdatelibrary.http.HttpRequest;
  */
 
 public class Q {
+
+    public static final String GET = "GET";//GEI请求
+    public static final String POST = "POST";//POST请求
 
     private Q() {
     }
@@ -23,13 +29,14 @@ public class Q {
      * @param requestMethod      请求方式:目前仅支持post或get
      * @param currentVersionCode 当前应用版本号
      * @param urlPath            请求地址
+     * @param params             请求参数,不需要传参时,置为null即可
      * @param callback           请求回调
      */
-    public static void checkUpdate(@NonNull String requestMethod, @NonNull int currentVersionCode, @NonNull String urlPath, @NonNull CheckUpdateCallback callback) {
+    public static void checkUpdate(@NonNull String requestMethod, @NonNull int currentVersionCode, @NonNull String urlPath, @Nullable Map<String, String> params, @NonNull CheckUpdateCallback callback) {
         if (TextUtils.equals(requestMethod.toUpperCase(), "GET")) {
-            HttpRequest.get(currentVersionCode, urlPath, callback);
+            HttpRequest.get(currentVersionCode, urlPath, params, callback);
         } else {
-            HttpRequest.post(currentVersionCode, urlPath, callback);
+            HttpRequest.post(currentVersionCode, urlPath, params, callback);
         }
     }
 
@@ -38,13 +45,14 @@ public class Q {
      *
      * @param requestMethod 请求方式:目前仅支持post或get
      * @param urlPath       请求地址
+     * @param params        请求参数,不需要传参时,置为null即可
      * @param callback      请求回调
      */
-    public static void checkUpdate(@NonNull String requestMethod, @NonNull String urlPath, @NonNull CheckUpdateCallback2 callback) {
+    public static void checkUpdate(@NonNull String requestMethod, @NonNull String urlPath, @Nullable Map<String, String> params, @NonNull CheckUpdateCallback2 callback) {
         if (TextUtils.equals(requestMethod.toUpperCase(), "GET")) {
-            HttpRequest.get(urlPath, callback);
+            HttpRequest.get(urlPath, params, callback);
         } else {
-            HttpRequest.post(urlPath, callback);
+            HttpRequest.post(urlPath, params, callback);
         }
     }
 }

@@ -1,18 +1,28 @@
 package com.qiangxi.checkupdatelibrarydemo;
 
+import android.Manifest;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.qiangxi.checkupdatelibrary.bean.CheckUpdateInfo;
 import com.qiangxi.checkupdatelibrary.dialog.ForceUpdateDialog;
 import com.qiangxi.checkupdatelibrary.dialog.UpdateDialog;
 
+import static com.qiangxi.checkupdatelibrary.dialog.ForceUpdateDialog.FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE;
+import static com.qiangxi.checkupdatelibrary.dialog.UpdateDialog.UPDATE_DIALOG_PERMISSION_REQUEST_CODE;
+
 public class MainActivity extends AppCompatActivity {
     private CheckUpdateInfo mCheckUpdateInfo;
+    private UpdateDialog mUpdateDialog;
+    private ForceUpdateDialog mForceUpdateDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,10 +33,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void initData() {
         //被注释的代码用来进行检查更新,这里为了方便,模拟一些假数据
-        //第一种方式
-//        Q.checkUpdate("post", getVersionCode(), "checkUpdateUrl", new CheckUpdateCallback() {
+        //第一种方式,不需要传参时,param参数置为null即可
+//        Map<String,String> param = new HashMap<>();
+//        param.put("key1","value1");
+//        ...
+//        params.put("keyN", "valueN");
+//        Q.checkUpdate("post", getVersionCode(), "检查更新地址", param,new CheckUpdateCallback() {
 //            @Override
 //            public void onCheckUpdateSuccess(String result, boolean hasUpdate) {
+//                Log.e("tag",result);
 //                //result:服务端返回的json,解析成自己的实体类,当然您也可以使用checkupdatelibrary中自带的实体类CheckUpdateInfo
 //                CheckUpdateInfo checkUpdateInfo = new Gson().fromJson(result, CheckUpdateInfo.class);
 //                //有更新,显示dialog等
@@ -50,16 +65,21 @@ public class MainActivity extends AppCompatActivity {
 //                //errorCode:暂时没什么用
 //            }
 //        });
-        //第二种方式
-//        Q.checkUpdate("get", "checkUpdateUrl", new CheckUpdateCallback2() {
+        //第二种方式,不需要传参时,params参数置为null即可
+//        Map<String, String> params = new HashMap<>();
+//        params.put("key1", "value1");
+//        //...
+//        params.put("keyN", "valueN");
+//        Q.checkUpdate(Q.GET, "检查更新地址", params, new CheckUpdateCallback2() {
 //            @Override
 //            public void onCheckUpdateSuccess(String result) {
+//                Log.e("tag", result);
 //                //result:服务端返回的json,需要自己判断有无更新,解析成自己的实体类进行判断是否有版本更新
 //            }
 //
 //            @Override
 //            public void onCheckUpdateFailure(String failureMessage) {
-//
+//                Log.e("tag", failureMessage);
 //            }
 //        });
 
@@ -81,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
     public void forceUpdateDialogClick(View view) {
         mCheckUpdateInfo.setIsForceUpdate(0);
         if (mCheckUpdateInfo.getIsForceUpdate() == 0) {
-            ForceUpdateDialog dialog = new ForceUpdateDialog(MainActivity.this);
-            dialog.setAppSize(mCheckUpdateInfo.getNewAppSize())
+            mForceUpdateDialog = new ForceUpdateDialog(MainActivity.this);
+            mForceUpdateDialog.setAppSize(mCheckUpdateInfo.getNewAppSize())
                     .setDownloadUrl(mCheckUpdateInfo.getNewAppUrl())
                     .setTitle(mCheckUpdateInfo.getAppName() + "有更新啦")
                     .setReleaseTime(mCheckUpdateInfo.getNewAppReleaseTime())
@@ -99,8 +119,8 @@ public class MainActivity extends AppCompatActivity {
     public void UpdateDialogClick(View view) {
         mCheckUpdateInfo.setIsForceUpdate(1);
         if (mCheckUpdateInfo.getIsForceUpdate() == 1) {
-            UpdateDialog dialog = new UpdateDialog(MainActivity.this);
-            dialog.setAppSize(mCheckUpdateInfo.getNewAppSize())
+            mUpdateDialog = new UpdateDialog(MainActivity.this);
+            mUpdateDialog.setAppSize(mCheckUpdateInfo.getNewAppSize())
                     .setDownloadUrl(mCheckUpdateInfo.getNewAppUrl())
                     .setTitle(mCheckUpdateInfo.getAppName() + "有更新啦")
                     .setReleaseTime(mCheckUpdateInfo.getNewAppReleaseTime())
@@ -130,4 +150,29 @@ public class MainActivity extends AppCompatActivity {
             return -1;
         }
     }
+
+    /**
+     * 6.0系统需要重写此方法
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (requestCode == UPDATE_DIALOG_PERMISSION_REQUEST_CODE) {
+                mUpdateDialog.download();
+            } else if (requestCode == FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE) {
+                mForceUpdateDialog.download();
+            }
+        } else {
+            //用户不同意,提示用户,如下载失败,因为您拒绝了相关权限
+            if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                Log.e("tag", "false.请开启读写sd卡权限,不然无法正常工作");
+            } else {
+                Log.e("tag", "true.请开启读写sd卡权限,不然无法正常工作");
+            }
+            Toast.makeText(this, "some description...", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
+

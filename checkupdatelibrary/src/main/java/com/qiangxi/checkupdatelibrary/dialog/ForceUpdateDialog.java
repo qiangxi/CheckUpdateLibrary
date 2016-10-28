@@ -1,11 +1,15 @@
 package com.qiangxi.checkupdatelibrary.dialog;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -50,6 +54,8 @@ public class ForceUpdateDialog extends Dialog {
     private String mFilePath;//文件存储路径
     private String mFileName;//自定义的文件名
     private long timeRange;//时间间隔
+
+    public static final int FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE = 1;//权限请求码
 
     public ForceUpdateDialog(Context context) {
         super(context);
@@ -115,31 +121,39 @@ public class ForceUpdateDialog extends Dialog {
         forceUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //防抖动,两次点击间隔小于500ms都return;
-                if (System.currentTimeMillis() - timeRange < 500) {
-                    return;
-                }
-                timeRange = System.currentTimeMillis();
-                setNetWorkState();
-                if (!NetWorkUtil.hasNetConnection(context)) {
-                    Toast.makeText(context, "当前无网络连接", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if ("点击安装".equals(forceUpdate.getText().toString().trim())) {
-                    File file = new File(mFilePath, mFileName);
-                    if (file.exists()) {
-                        ApplicationUtil.installApk(context, file);
-                    } else {
-                        download();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    int permissionStatus = ActivityCompat.checkSelfPermission(context, Manifest.permission_group.STORAGE);
+                    if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.
+                                WRITE_EXTERNAL_STORAGE}, FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
                     }
-                    return;
+                } else {
+                    download();
                 }
-                download();
             }
         });
     }
 
-    private void download() {
+    public void download() {
+        //防抖动,两次点击间隔小于500ms都return;
+        if (System.currentTimeMillis() - timeRange < 500) {
+            return;
+        }
+        timeRange = System.currentTimeMillis();
+        setNetWorkState();
+        if (!NetWorkUtil.hasNetConnection(context)) {
+            Toast.makeText(context, "当前无网络连接", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if ("点击安装".equals(forceUpdate.getText().toString().trim())) {
+            File file = new File(mFilePath, mFileName);
+            if (file.exists()) {
+                ApplicationUtil.installApk(context, file);
+            } else {
+                download();
+            }
+            return;
+        }
         forceUpdateProgress.setVisibility(View.VISIBLE);
         HttpRequest.download(mDownloadUrl, mFilePath, mFileName, new DownloadCallback() {
             @Override
