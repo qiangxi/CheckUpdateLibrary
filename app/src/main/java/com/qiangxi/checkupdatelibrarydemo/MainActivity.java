@@ -6,9 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -157,21 +155,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //如果用户同意所请求的权限
         if (permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            //UPDATE_DIALOG_PERMISSION_REQUEST_CODE和FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE这两个常量是library中定义好的
+            //所以在进行判断时,必须要结合这两个常量进行判断.
+            //非强制更新对话框
             if (requestCode == UPDATE_DIALOG_PERMISSION_REQUEST_CODE) {
+                //进行下载操作
                 mUpdateDialog.download();
-            } else if (requestCode == FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE) {
+            }
+            //强制更新对话框
+            else if (requestCode == FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE) {
+                //进行下载操作
                 mForceUpdateDialog.download();
             }
         } else {
             //用户不同意,提示用户,如下载失败,因为您拒绝了相关权限
-            if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                Log.e("tag", "false.请开启读写sd卡权限,不然无法正常工作");
-            } else {
-                Log.e("tag", "true.请开启读写sd卡权限,不然无法正常工作");
-            }
             Toast.makeText(this, "some description...", Toast.LENGTH_SHORT).show();
+//            if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+//                Log.e("tag", "false.请开启读写sd卡权限,不然无法正常工作");
+//            } else {
+//                Log.e("tag", "true.请开启读写sd卡权限,不然无法正常工作");
+//            }
+
         }
     }
 }
