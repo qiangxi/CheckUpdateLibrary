@@ -67,7 +67,7 @@ CheckUpdateLibrary具有超强扩展性:
 **gradle方式:**
 ```groovy
  dependencies {  
-    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.0.4' 
+    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.0.5' 
     }
 ```
 **Maven方式:**  
@@ -75,13 +75,28 @@ CheckUpdateLibrary具有超强扩展性:
 <dependency>
   <groupId>com.qiangxi.checkupdatelibrary</groupId>
   <artifactId>checkupdatelibrary</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
   <type>pom</type>
 </dependency>
 ```  
 ####Eclipse:  
 使用eclipse的小伙伴只能下载library文件,然后引入到项目中使用了 
-
+####基本配置:  
+在1.0.5版本中移除了manifest文件中的相关权限和配置,所以在配置好checkupdatelibrary的依赖之后,需要在自己项目的manifest.xml文件中配置相关权限和配置,具体的权限和配置如下:  
+**需要的权限:**  
+```xml
+ <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+```  
+**DownloadService配置:**  
+```xml
+ <service android:name="com.qiangxi.checkupdatelibrary.service.DownloadService"/>
+```
+上面两步配置必不可少,配置完毕之后就可以正常使用了.  
 ####检查更新:    
 检查更新方式在1.0.4版本中有一些变化,在1.0.4版本中,加入了可以添加请求参数的功能,具体的使用可以参考demo教程,下面贴出核心示例代码:  
 **1.0.4版本的用法:**  
