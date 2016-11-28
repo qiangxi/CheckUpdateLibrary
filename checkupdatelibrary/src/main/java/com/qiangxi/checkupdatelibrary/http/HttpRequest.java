@@ -141,6 +141,13 @@ public class HttpRequest {
                     }
                     //获取内容
                     inputStream = httpURLConnection.getInputStream();
+                    //若不ok,则数据请求失败
+                    if (HttpURLConnection.HTTP_OK != httpURLConnection.getResponseCode()) {
+                        message.obj = "错误码: " + httpURLConnection.getResponseCode();//把响应码返回
+                        message.what = checkUpdateFailure;
+                        handler.sendMessage(message);
+                        return;
+                    }
                     bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                     final StringBuilder sb = new StringBuilder();
                     String line;
@@ -235,6 +242,13 @@ public class HttpRequest {
                     }
                     //获取内容
                     inputStream = httpURLConnection.getInputStream();
+                    //若不ok,则数据请求失败
+                    if (HttpURLConnection.HTTP_OK != httpURLConnection.getResponseCode()) {
+                        message.obj = "错误码: " + httpURLConnection.getResponseCode();//把响应码返回
+                        message.what = checkUpdateFailure;
+                        handler.sendMessage(message);
+                        return;
+                    }
                     bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                     final StringBuilder sb = new StringBuilder();
                     String line;
@@ -317,6 +331,13 @@ public class HttpRequest {
                     StringBuilder sb = new StringBuilder();
                     String tempLine = null;
                     inputStream = httpURLConnection.getInputStream();
+                    //若不ok,则数据请求失败
+                    if (HttpURLConnection.HTTP_OK != httpURLConnection.getResponseCode()) {
+                        message.obj = "错误码: " + httpURLConnection.getResponseCode();//把响应码返回
+                        message.what = checkUpdateFailure;
+                        handler.sendMessage(message);
+                        return;
+                    }
                     inputStreamReader = new InputStreamReader(inputStream);
                     reader = new BufferedReader(inputStreamReader);
                     while ((tempLine = reader.readLine()) != null) {
@@ -407,6 +428,13 @@ public class HttpRequest {
                     StringBuilder sb = new StringBuilder();
                     String tempLine = null;
                     inputStream = httpURLConnection.getInputStream();
+                    //若不ok,则数据请求失败
+                    if (HttpURLConnection.HTTP_OK != httpURLConnection.getResponseCode()) {
+                        message.obj = "错误码: " + httpURLConnection.getResponseCode();//把响应码返回
+                        message.what = checkUpdateFailure;
+                        handler.sendMessage(message);
+                        return;
+                    }
                     inputStreamReader = new InputStreamReader(inputStream);
                     reader = new BufferedReader(inputStreamReader);
                     while ((tempLine = reader.readLine()) != null) {
@@ -461,6 +489,13 @@ public class HttpRequest {
                     URL url = new URL(downloadPath);
                     connection = (HttpURLConnection) url.openConnection();
                     connection.connect();
+                    if (HttpURLConnection.HTTP_OK != connection.getResponseCode()) {
+                        Message message1 = new Message();
+                        message1.what = downloadFailure;
+                        message1.obj = "错误码: " + connection.getResponseCode();
+                        handler.sendMessage(message1);
+                        return;
+                    }
                     int fileLength = connection.getContentLength();
                     // 文件总长度
                     input = connection.getInputStream();
@@ -492,7 +527,7 @@ public class HttpRequest {
                                 }
                             }
                             timestamp = System.currentTimeMillis();
-                            //这里需要一直new新的message,不然会报错
+                            //这里需要一直new新的message,不然会报错,暂时还未想到更好的解决方式
                             Message message = new Message();
                             message.what = downloading;
                             bundle.putLong("currentLength", current);
