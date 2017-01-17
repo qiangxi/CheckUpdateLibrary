@@ -10,11 +10,13 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +42,7 @@ public class ForceUpdateDialog extends Dialog {
     private TextView forceUpdateVersion;//版本名
     private TextView forceUpdateSize;//软件大小
     private TextView forceUpdateDesc;//更新日志
+    private LinearLayout forceUpdateDescLayout;//更新日志根布局
     private TextView forceUpdateNetworkState;//网络状况
     private NumberProgressBar forceUpdateProgress;//下载进度
     private Button forceUpdate;//开始更新
@@ -84,11 +87,36 @@ public class ForceUpdateDialog extends Dialog {
     }
 
     private void initData() {
-        forceUpdateTitle.setText(mTitle + "");
-        forceUpdateTime.setText("发布时间:" + mAppTime);
-        forceUpdateVersion.setText("版本:" + mVersionName);
-        forceUpdateSize.setText("大小:" + mAppSize + "M");
-        forceUpdateDesc.setText(mAppDesc + "");
+        //标题
+        if (TextUtils.isEmpty(mTitle)) {
+            forceUpdateTitle.setVisibility(View.GONE);
+        } else {
+            forceUpdateTitle.setText(mTitle);
+        }
+        //发布时间
+        if (TextUtils.isEmpty(mAppTime)) {
+            forceUpdateTime.setVisibility(View.GONE);
+        } else {
+            forceUpdateTime.setText("发布时间:" + mAppTime);
+        }
+        //新版版本名,eg:2.2.1
+        if (TextUtils.isEmpty(mVersionName)) {
+            forceUpdateVersion.setVisibility(View.GONE);
+        } else {
+            forceUpdateVersion.setText("版本:" + mVersionName);
+        }
+        //新版本app大小
+        if (mAppSize == 0) {
+            forceUpdateSize.setVisibility(View.GONE);
+        } else {
+            forceUpdateSize.setText("大小:" + mAppSize + "M");
+        }
+        //更新日志
+        if (TextUtils.isEmpty(mAppDesc)) {
+            forceUpdateDescLayout.setVisibility(View.GONE);
+        } else {
+            forceUpdateDesc.setText(mAppDesc);
+        }
         setNetWorkState();
     }
 
@@ -185,6 +213,7 @@ public class ForceUpdateDialog extends Dialog {
         forceUpdateVersion = (TextView) view.findViewById(R.id.forceUpdateVersion);
         forceUpdateSize = (TextView) view.findViewById(R.id.forceUpdateSize);
         forceUpdateDesc = (TextView) view.findViewById(R.id.forceUpdateDesc);
+        forceUpdateDescLayout = (LinearLayout) view.findViewById(R.id.forceUpdateDescLayout);
         forceUpdateNetworkState = (TextView) view.findViewById(R.id.forceUpdateNetworkState);
         forceUpdateProgress = (NumberProgressBar) view.findViewById(R.id.forceUpdateProgress);
         exitApp = (Button) view.findViewById(R.id.exitApp);

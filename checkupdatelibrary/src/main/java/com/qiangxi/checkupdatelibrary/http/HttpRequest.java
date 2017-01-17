@@ -527,8 +527,7 @@ public class HttpRequest {
                                 }
                             }
                             timestamp = System.currentTimeMillis();
-                            //这里需要一直new新的message,不然会报错,暂时还未想到更好的解决方式
-                            Message message = new Message();
+                            Message message = Message.obtain();
                             message.what = downloading;
                             bundle.putLong("currentLength", current);
                             bundle.putLong("fileLength", fileLength);

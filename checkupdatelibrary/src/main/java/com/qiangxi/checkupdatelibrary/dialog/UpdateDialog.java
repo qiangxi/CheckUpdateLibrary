@@ -11,11 +11,13 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +38,7 @@ public class UpdateDialog extends Dialog {
     private TextView updateVersion;//版本名
     private TextView updateSize;//软件大小
     private TextView updateDesc;//更新日志
+    private LinearLayout updateDescLayout;//更新日志根布局
     private TextView updateNetworkState;//网络状况
     private Button update;//开始更新
     private Button noUpdate;//暂不更新
@@ -130,11 +133,36 @@ public class UpdateDialog extends Dialog {
     }
 
     private void initData() {
-        updateTitle.setText(mTitle + "");
-        updateTime.setText("发布时间:" + mAppTime);
-        updateVersion.setText("版本:" + mVersionName);
-        updateSize.setText("大小:" + mAppSize + "M");
-        updateDesc.setText(mAppDesc + "");
+        //标题
+        if (TextUtils.isEmpty(mTitle)) {
+            updateTitle.setVisibility(View.GONE);
+        } else {
+            updateTitle.setText(mTitle);
+        }
+        //发布时间
+        if (TextUtils.isEmpty(mAppTime)) {
+            updateTime.setVisibility(View.GONE);
+        } else {
+            updateTime.setText("发布时间:" + mAppTime);
+        }
+        //新版版本名,eg:2.2.1
+        if (TextUtils.isEmpty(mVersionName)) {
+            updateVersion.setVisibility(View.GONE);
+        } else {
+            updateVersion.setText("版本:" + mVersionName);
+        }
+        //新版本app大小
+        if (mAppSize == 0) {
+            updateSize.setVisibility(View.GONE);
+        } else {
+            updateSize.setText("大小:" + mAppSize + "M");
+        }
+        //更新日志
+        if (TextUtils.isEmpty(mAppDesc)) {
+            updateDescLayout.setVisibility(View.GONE);
+        } else {
+            updateDesc.setText(mAppDesc);
+        }
         setNetWorkState();
     }
 
@@ -162,6 +190,7 @@ public class UpdateDialog extends Dialog {
         updateVersion = (TextView) view.findViewById(R.id.updateVersion);
         updateSize = (TextView) view.findViewById(R.id.updateSize);
         updateDesc = (TextView) view.findViewById(R.id.updateDesc);
+        updateDescLayout = (LinearLayout) view.findViewById(R.id.updateDescLayout);
         updateNetworkState = (TextView) view.findViewById(R.id.updateNetworkState);
         update = (Button) view.findViewById(R.id.update);
         noUpdate = (Button) view.findViewById(R.id.noUpdate);
