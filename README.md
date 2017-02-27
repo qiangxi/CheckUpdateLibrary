@@ -1,7 +1,12 @@
 # CheckUpdateLibrary
 检查更新库
+### 更新日志v1.0.7(2017-01-17):  
+- 优化无数据时,内置Dialog的界面显示  
+- 优化下载过程中,message的获取方式,更加节省性能
 
-一个Android专用检查软件更新的库  
+---
+
+一个Android专用检查软件更新的库 
 ##效果图:  
 非强制更新:  
 ![非强制更新](http://img.blog.csdn.net/20161015170249346?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)  
@@ -67,7 +72,7 @@ CheckUpdateLibrary具有超强扩展性:
 **gradle方式:**
 ```groovy
  dependencies {  
-    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.0.6' 
+    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.0.7' 
     }
 ```
 **Maven方式:**  
@@ -75,7 +80,7 @@ CheckUpdateLibrary具有超强扩展性:
 <dependency>
   <groupId>com.qiangxi.checkupdatelibrary</groupId>
   <artifactId>checkupdatelibrary</artifactId>
-  <version>1.0.6</version>
+  <version>1.0.7</version>
   <type>pom</type>
 </dependency>
 ```  
