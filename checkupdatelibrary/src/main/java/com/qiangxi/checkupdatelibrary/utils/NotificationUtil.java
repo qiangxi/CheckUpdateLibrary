@@ -6,7 +6,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.FileProvider;
 
 import java.io.File;
 
@@ -36,7 +38,15 @@ public class NotificationUtil {
         Intent installIntent = new Intent();
         installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         installIntent.setAction(Intent.ACTION_VIEW);
-        installIntent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
+        Uri uri;
+        //当前设备系统版本在7.0以上
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            uri = FileProvider.getUriForFile(context, "com.qiangxi.checkupdatelibrary", file);
+            installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } else {
+            uri = Uri.fromFile(file);
+        }
+        installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setAutoCancel(false).setShowWhen(true).setSmallIcon(notificationIconResId).setContentTitle(notificationTitle).setContentText(notificationContent);
         PendingIntent pendingIntent = getActivity(context, 0, installIntent, PendingIntent.FLAG_UPDATE_CURRENT);

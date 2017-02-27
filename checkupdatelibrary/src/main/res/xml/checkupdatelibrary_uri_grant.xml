@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <paths>
+        <external-path
+            name="checkupdatelib"
+            path=""/>
+        <files-path
+            name="checkupdatelib"
+            path=""/>
+        <cache-path
+            name="checkupdatelib"
+            path=""/>
+        <root-path
+            name="checkupdatelib"
+            path=""/>
+    </paths>
+</resources>
