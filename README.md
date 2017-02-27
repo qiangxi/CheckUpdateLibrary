@@ -1,6 +1,22 @@
 # CheckUpdateLibrary
 检查更新库
-### 更新日志v1.0.7(2017-01-17):  
+### 更新日志v1.0.8(2017-02-27):
+- 兼容Android 7.0,修复7.0严格模式下安装应用崩溃的bug(兼容性bug)  
+
+如果您的app兼容Android 7.0,需要在您主项目的manifest.xml文件中额外添加以下代码(对provider的声明):  
+```xml
+<provider
+    android:name="android.support.v4.content.FileProvider"
+    android:authorities="com.qiangxi.checkupdatelibrary"
+    android:exported="false"
+    android:grantUriPermissions="true">
+    <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/checkupdatelibrary_uri_grant"/>
+</provider>
+```
+其中,checkupdatelibrary_uri_grant文件已经在library中配置完毕,无需再额外配置.
+### 更新日志v1.0.7(2017-01-17):  
 - 优化无数据时,内置Dialog的界面显示  
 - 优化下载过程中,message的获取方式,更加节省性能
 
@@ -72,7 +88,7 @@ CheckUpdateLibrary具有超强扩展性:
 **gradle方式:**
 ```groovy
  dependencies {  
-    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.0.7' 
+    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.0.8' 
     }
 ```
 **Maven方式:**  
@@ -80,7 +96,7 @@ CheckUpdateLibrary具有超强扩展性:
 <dependency>
   <groupId>com.qiangxi.checkupdatelibrary</groupId>
   <artifactId>checkupdatelibrary</artifactId>
-  <version>1.0.7</version>
+  <version>1.0.8</version>
   <type>pom</type>
 </dependency>
 ```  
