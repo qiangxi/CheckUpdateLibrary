@@ -26,7 +26,6 @@ import com.qiangxi.checkupdatelibrary.R;
 import com.qiangxi.checkupdatelibrary.service.DownloadService;
 import com.qiangxi.checkupdatelibrary.utils.NetWorkUtil;
 
-import static com.qiangxi.checkupdatelibrary.dialog.ForceUpdateDialog.FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE;
 
 /**
  * Created by qiang_xi on 2016/10/7 13:04.
@@ -99,7 +98,7 @@ public class UpdateDialog extends Dialog {
                         int permissionStatus = ActivityCompat.checkSelfPermission(context, Manifest.permission_group.STORAGE);
                         if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.
-                                    WRITE_EXTERNAL_STORAGE}, FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
+                                    WRITE_EXTERNAL_STORAGE}, UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
                         }
                     } else {
                         download();
