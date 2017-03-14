@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@drawable/shape_dialog_background"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/checkupdatelibrary_shape_dialog_background"
+    android:orientation="vertical">
 
     <TextView
-        android:id="@+id/updateTitle"
+        android:id="@+id/forceUpdateTitle"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:gravity="center_vertical"
         android:paddingLeft="10dp"
         android:textColor="@android:color/black"
-        android:textSize="16sp"/>
+        android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/updateTime"
+        android:id="@+id/forceUpdateTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="20dp"/>
+        android:paddingLeft="20dp" />
 
     <TextView
-        android:id="@+id/updateVersion"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="20dp"
-        android:paddingTop="5dp"/>
-
-    <TextView
-        android:id="@+id/updateSize"
+        android:id="@+id/forceUpdateVersion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="20dp"
-        android:paddingTop="5dp"/>
+        android:paddingTop="5dp" />
+
+    <TextView
+        android:id="@+id/forceUpdateSize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingTop="5dp" />
 
     <LinearLayout
-        android:id="@+id/updateDescLayout"
+        android:id="@+id/forceUpdateDescLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -46,31 +46,37 @@
             android:paddingLeft="20dp"
             android:paddingTop="5dp"
             android:text="更新内容:"
-            android:textColor="@android:color/black"/>
+            android:textColor="@android:color/black" />
 
-        <ScrollView
+
+        <TextView
+            android:id="@+id/forceUpdateDesc"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginTop="3dp">
-
-            <TextView
-                android:id="@+id/updateDesc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"/>
-        </ScrollView>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:maxLines="4"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:scrollbars="vertical" />
     </LinearLayout>
 
     <TextView
-        android:id="@+id/updateNetworkState"
+        android:id="@+id/forceUpdateNetworkState"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
+        android:layout_marginTop="5dp" />
+
+    <com.qiangxi.checkupdatelibrary.views.NumberProgressBar
+        android:id="@+id/forceUpdateProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:layout_marginTop="5dp"
-        />
+        android:visibility="gone" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -83,30 +89,29 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/shape_no_update_button">
+            android:background="@drawable/checkupdatelibrary_shape_no_update_button">
 
             <Button
-                android:id="@+id/noUpdate"
+                android:id="@+id/exitApp"
                 android:layout_width="80dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackground"
-                android:text="暂不更新"/>
+                android:text="退出应用" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:background="@drawable/shape_update_button">
+            android:background="@drawable/checkupdatelibrary_shape_update_button">
 
             <Button
-                android:id="@+id/update"
+                android:id="@+id/forceUpdate"
                 android:layout_width="80dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackground"
                 android:text="立即更新"
-                android:textColor="@android:color/white"/>
+                android:textColor="@android:color/white" />
         </LinearLayout>
     </RelativeLayout>
-
 </LinearLayout>

@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -79,7 +80,7 @@ public class ForceUpdateDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        view = LayoutInflater.from(context).inflate(R.layout.force_update_dialog_layout, null);
+        view = LayoutInflater.from(context).inflate(R.layout.checkupdatelibrary_force_update_dialog_layout, null);
         setContentView(view);
         initView();
         initData();
@@ -116,6 +117,7 @@ public class ForceUpdateDialog extends Dialog {
             forceUpdateDescLayout.setVisibility(View.GONE);
         } else {
             forceUpdateDesc.setText(mAppDesc);
+            forceUpdateDesc.setMovementMethod(ScrollingMovementMethod.getInstance());
         }
         setNetWorkState();
     }
@@ -149,11 +151,17 @@ public class ForceUpdateDialog extends Dialog {
         forceUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    int permissionStatus = ActivityCompat.checkSelfPermission(context, Manifest.permission_group.STORAGE);
-                    if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.
-                                WRITE_EXTERNAL_STORAGE}, FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
+                //先比较主项目的targetSdkVersion,如果>=23,进行下一步,否则直接下载
+                if (context.getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.M) {
+                    //如果项目运行在6.0+设备中,进行权限动态获取,否则直接下载
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        int permissionStatus = ActivityCompat.checkSelfPermission(context, Manifest.permission_group.STORAGE);
+                        if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.
+                                    WRITE_EXTERNAL_STORAGE}, FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
+                        }
+                    } else {
+                        download();
                     }
                 } else {
                     download();
