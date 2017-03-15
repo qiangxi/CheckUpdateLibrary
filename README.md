@@ -1,5 +1,9 @@
 # CheckUpdateLibrary
-检查更新库
+检查更新库 
+### 更新日志v1.0.9(2017-03-15):
+- 修复当设备为6.0以上时,点击立即更新按钮没反应的bug
+- 优化内置dialog关于更新日志TextView的内容过多时,可以上下滑动的体验
+- 统一资源命名规范
 ### 更新日志v1.0.8(2017-02-27):
 - 兼容Android 7.0,修复7.0严格模式下安装应用崩溃的bug(兼容性bug)  
 
@@ -88,7 +92,7 @@ CheckUpdateLibrary具有超强扩展性:
 **gradle方式:**
 ```groovy
  dependencies {  
-    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.0.8' 
+    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.0.9' 
     }
 ```
 **Maven方式:**  
@@ -96,7 +100,7 @@ CheckUpdateLibrary具有超强扩展性:
 <dependency>
   <groupId>com.qiangxi.checkupdatelibrary</groupId>
   <artifactId>checkupdatelibrary</artifactId>
-  <version>1.0.8</version>
+  <version>1.0.9</version>
   <type>pom</type>
 </dependency>
 ```  
