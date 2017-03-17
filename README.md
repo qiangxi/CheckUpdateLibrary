@@ -109,7 +109,7 @@ CheckUpdateLibrary具有超强扩展性:
 **gradle方式:**
 ```groovy
  dependencies {  
-    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.0.9' 
+    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.1.0' 
     }
 ```
 **Maven方式:**  
@@ -117,7 +117,7 @@ CheckUpdateLibrary具有超强扩展性:
 <dependency>
   <groupId>com.qiangxi.checkupdatelibrary</groupId>
   <artifactId>checkupdatelibrary</artifactId>
-  <version>1.0.9</version>
+  <version>1.1.0</version>
   <type>pom</type>
 </dependency>
 ```  
