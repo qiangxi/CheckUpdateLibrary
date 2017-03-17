@@ -1,5 +1,21 @@
 # CheckUpdateLibrary
 检查更新库 
+### 更新日志v1.1.0(2017-03-17):
+- 修复使用1.0.8和1.0.9版本安装应用失败的bug,错误提示为"Installation failed with message INSTALL_FAILED_CONFLICTING_PROVIDER".  
+#### 安装失败的原因:
+因为v1.0.8和v1.0.9为了兼容7.0使用了provider,其中在provider中有个android:authorities属性,该属性的值对于不同的应用来说必须要有不同的值,在v1.0.8和v1.0.9中, android:authorities的值都必须是"com.qiangxi.checkupdatelibrary",这种做法就造成如果A应用使用了这种配置且先安装到设备中,当B应用也使用这种配置再进行安装时,就会安装失败并报上面那个错,提示provider冲突,解决方式就是为不同的应用提供不同的android:authorities属性值,而区分不同应用的根本方式就是应用的包名,所以在v1.1.0版本中,每个应用使用自己的包名作为android:authorities属性的属性值即可.  
+#### provider新的配置代码:
+```xml
+<provider
+    android:name="android.support.v4.content.FileProvider"
+    android:authorities="your packageName"
+    android:exported="false"
+    android:grantUriPermissions="true">
+    <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/checkupdatelibrary_uri_grant"/>
+</provider>
+```
 ### 更新日志v1.0.9(2017-03-15):
 - 修复当设备为6.0以上时,点击立即更新按钮没反应的bug
 - 优化内置dialog关于更新日志TextView的内容过多时,可以上下滑动的体验
