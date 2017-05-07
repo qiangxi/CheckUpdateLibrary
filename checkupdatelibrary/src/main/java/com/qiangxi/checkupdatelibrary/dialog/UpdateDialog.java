@@ -10,7 +10,10 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
@@ -58,6 +61,8 @@ public class UpdateDialog extends Dialog {
     private boolean isShowProgress = false;//是否在通知栏显示下载进度,默认不显示
     private long timeRange;//时间间隔
 
+    private Fragment mFragmentCallback;
+
     public static final int UPDATE_DIALOG_PERMISSION_REQUEST_CODE = 0;//权限请求码
 
     public UpdateDialog(Context context) {
@@ -65,6 +70,11 @@ public class UpdateDialog extends Dialog {
         setDialogTheme();
         setCanceledOnTouchOutside(false);
         this.context = context;
+    }
+
+    public UpdateDialog(Context context, @NonNull Fragment fragment) {
+        this(context);
+        mFragmentCallback = fragment;
     }
 
     /**
@@ -95,10 +105,15 @@ public class UpdateDialog extends Dialog {
                 if (context.getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.M) {
                     //如果项目运行在6.0+设备中,进行权限动态获取,否则直接下载
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        int permissionStatus = ActivityCompat.checkSelfPermission(context, Manifest.permission_group.STORAGE);
+                        int permissionStatus = ContextCompat.checkSelfPermission(context, Manifest.permission_group.STORAGE);
                         if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.
-                                    WRITE_EXTERNAL_STORAGE}, UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
+                            if (mFragmentCallback != null) {
+                                mFragmentCallback.requestPermissions(new String[]{Manifest.permission.
+                                        WRITE_EXTERNAL_STORAGE}, UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
+                            } else {
+                                ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.
+                                        WRITE_EXTERNAL_STORAGE}, UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
+                            }
                         }
                     } else {
                         download();
