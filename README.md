@@ -1,5 +1,17 @@
 # CheckUpdateLibrary
 检查更新库 
+### 更新日志v1.1.1(2017-05-08):
+- 优化动态获取权限请求功能,方便在fragment中请求权限,兼容v4包下的fragment以及app包下的fragment.
+现在动态获取权限时  
+如果在activity中进行权限请求,直接调用一个构造参数的dialog即可,如:
+```java
+ ForceUpdateDialog mForceUpdateDialog = new ForceUpdateDialog(MainActivity.this);
+```
+在v4或app包下的fragment中进行权限请求,调用2个参数的构造方法即可,如:
+```java
+ ForceUpdateDialog mForceUpdateDialog = new ForceUpdateDialog(mContext,this);
+```
+- 在布局中明确指定字体颜色,修复在某些机型中字体颜色默认为白色的问题.
 ### 更新日志v1.1.0(2017-03-17):
 - 修复使用1.0.8和1.0.9版本安装应用失败的bug,错误提示为"Installation failed with message INSTALL_FAILED_CONFLICTING_PROVIDER".  
 #### 安装失败的原因:
