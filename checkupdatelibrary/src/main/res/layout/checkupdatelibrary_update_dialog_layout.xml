@@ -11,6 +11,7 @@
         android:layout_height="40dp"
         android:gravity="center_vertical"
         android:paddingLeft="10dp"
+        android:textStyle="bold"
         android:textColor="@android:color/black"
         android:textSize="16sp" />
 
@@ -18,12 +19,14 @@
         android:id="@+id/updateTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/checkupdatelibrary_normal_text_color"
         android:paddingLeft="20dp" />
 
     <TextView
         android:id="@+id/updateVersion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/checkupdatelibrary_normal_text_color"
         android:paddingLeft="20dp"
         android:paddingTop="5dp" />
 
@@ -32,6 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="20dp"
+        android:textColor="@color/checkupdatelibrary_normal_text_color"
         android:paddingTop="5dp" />
 
     <LinearLayout
@@ -46,6 +50,7 @@
             android:paddingLeft="20dp"
             android:paddingTop="5dp"
             android:text="更新内容:"
+            android:textStyle="bold"
             android:textColor="@android:color/black" />
 
         <TextView
@@ -54,6 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
             android:maxLines="4"
+            android:textColor="@color/checkupdatelibrary_normal_text_color"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
             android:scrollbars="vertical" />
@@ -84,6 +90,7 @@
             <Button
                 android:id="@+id/noUpdate"
                 android:layout_width="80dp"
+                android:textColor="@color/checkupdatelibrary_normal_text_color"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackground"
                 android:text="暂不更新" />

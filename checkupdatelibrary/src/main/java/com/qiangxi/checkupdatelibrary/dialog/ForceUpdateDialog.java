@@ -62,10 +62,14 @@ public class ForceUpdateDialog extends Dialog {
     private String mFileName;//自定义的文件名
     private long timeRange;//时间间隔
 
-    private Fragment mFragmentCallback;
+    private Fragment mCompatFragmentCallback;//兼容v4版本fragment
+    private android.app.Fragment mFragmentCallback;//兼容3.0的fragment
 
     public static final int FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE = 1;//权限请求码
 
+    /**
+     * 在activity中动态请求权限使用这个构造方法
+     */
     public ForceUpdateDialog(Context context) {
         super(context);
         setDialogTheme();
@@ -73,7 +77,18 @@ public class ForceUpdateDialog extends Dialog {
         this.context = context;
     }
 
+    /**
+     * 在v4包的Fragment中动态请求权限使用这个构造方法
+     */
     public ForceUpdateDialog(Context context, @NonNull Fragment fragment) {
+        this(context);
+        mCompatFragmentCallback = fragment;
+    }
+
+    /**
+     * 在app包的Fragment中动态请求权限使用这个构造方法
+     */
+    public ForceUpdateDialog(Context context, @NonNull android.app.Fragment fragment) {
         this(context);
         mFragmentCallback = fragment;
     }
@@ -167,7 +182,10 @@ public class ForceUpdateDialog extends Dialog {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         int permissionStatus = ContextCompat.checkSelfPermission(context, Manifest.permission_group.STORAGE);
                         if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
-                            if (mFragmentCallback != null) {
+                            if (mCompatFragmentCallback != null) {
+                                mCompatFragmentCallback.requestPermissions(new String[]{Manifest.permission.
+                                        WRITE_EXTERNAL_STORAGE}, FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
+                            } else if (mFragmentCallback != null) {
                                 mFragmentCallback.requestPermissions(new String[]{Manifest.permission.
                                         WRITE_EXTERNAL_STORAGE}, FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
                             } else {

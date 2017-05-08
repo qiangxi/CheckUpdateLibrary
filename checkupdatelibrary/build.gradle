@@ -2,14 +2,14 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
-version = "1.1.0"
+version = "1.1.1"
 android {
     compileSdkVersion 24
     buildToolsVersion "24.0.3"
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 24
-        resourcePrefix "checkupdatelibrary_"	//这个随便填
+        resourcePrefix "checkupdatelibrary_"	//资源命名的前缀,用于在不同的module中区分资源,防止命名冲突
         versionCode 1
         versionName version
 

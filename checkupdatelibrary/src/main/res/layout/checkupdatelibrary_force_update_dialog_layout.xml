@@ -11,6 +11,7 @@
         android:layout_height="40dp"
         android:gravity="center_vertical"
         android:paddingLeft="10dp"
+        android:textStyle="bold"
         android:textColor="@android:color/black"
         android:textSize="16sp" />
 
@@ -18,12 +19,14 @@
         android:id="@+id/forceUpdateTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/checkupdatelibrary_normal_text_color"
         android:paddingLeft="20dp" />
 
     <TextView
         android:id="@+id/forceUpdateVersion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/checkupdatelibrary_normal_text_color"
         android:paddingLeft="20dp"
         android:paddingTop="5dp" />
 
@@ -31,6 +34,7 @@
         android:id="@+id/forceUpdateSize"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/checkupdatelibrary_normal_text_color"
         android:paddingLeft="20dp"
         android:paddingTop="5dp" />
 
@@ -46,6 +50,7 @@
             android:paddingLeft="20dp"
             android:paddingTop="5dp"
             android:text="更新内容:"
+            android:textStyle="bold"
             android:textColor="@android:color/black" />
 
 
@@ -53,6 +58,7 @@
             android:id="@+id/forceUpdateDesc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/checkupdatelibrary_normal_text_color"
             android:layout_marginTop="3dp"
             android:maxLines="4"
             android:paddingLeft="20dp"
@@ -95,6 +101,7 @@
                 android:id="@+id/exitApp"
                 android:layout_width="80dp"
                 android:layout_height="40dp"
+                android:textColor="@color/checkupdatelibrary_normal_text_color"
                 android:background="?attr/selectableItemBackground"
                 android:text="退出应用" />
         </LinearLayout>

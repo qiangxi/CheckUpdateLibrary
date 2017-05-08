@@ -4,5 +4,5 @@
     <corners android:radius="1dp" />
     <stroke
         android:width="0.5dp"
-        android:color="@color/no_update_button" />
+        android:color="@color/checkupdatelibrary_no_update_button" />
 </shape>
