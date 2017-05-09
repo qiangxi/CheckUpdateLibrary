@@ -125,7 +125,7 @@ CheckUpdateLibrary具有超强扩展性:
 **gradle方式:**
 ```groovy
  dependencies {  
-    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.1.2' 
+    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.1.2@aar' 
     }
 ```
 **Maven方式:**  
