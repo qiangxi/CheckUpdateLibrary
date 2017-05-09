@@ -41,7 +41,7 @@ public class NotificationUtil {
         Uri uri;
         //当前设备系统版本在7.0以上
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            uri = FileProvider.getUriForFile(context, "com.qiangxi.checkupdatelibrary", file);
+            uri = FileProvider.getUriForFile(context, context.getPackageName(), file);
             installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         } else {
             uri = Uri.fromFile(file);
