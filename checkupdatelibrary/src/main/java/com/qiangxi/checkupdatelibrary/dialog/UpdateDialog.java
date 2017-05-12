@@ -115,28 +115,22 @@ public class UpdateDialog extends Dialog {
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //先比较主项目的targetSdkVersion,如果>=23,进行下一步,否则直接下载
-                if (context.getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.M) {
-                    //如果项目运行在6.0+设备中,进行权限动态获取,否则直接下载
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        int permissionStatus = ContextCompat.checkSelfPermission(context, Manifest.permission_group.STORAGE);
-                        if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
-                            if (mCompatFragmentCallback != null) {
-                                mCompatFragmentCallback.requestPermissions(new String[]{Manifest.permission.
-                                        WRITE_EXTERNAL_STORAGE}, UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
-                            } else if (mFragmentCallback != null) {
-                                mFragmentCallback.requestPermissions(new String[]{Manifest.permission.
-                                        WRITE_EXTERNAL_STORAGE}, UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
-                            } else {
-                                ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.
-                                        WRITE_EXTERNAL_STORAGE}, UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
-                            }
-                        }
-                    } else {
-                        download();
-                    }
-                } else {
+                int permissionStatus = ContextCompat.checkSelfPermission(context, Manifest.permission_group.STORAGE);
+                if (context.getApplicationInfo().targetSdkVersion < Build.VERSION_CODES.M
+                        || Build.VERSION.SDK_INT < Build.VERSION_CODES.M
+                        || permissionStatus == PackageManager.PERMISSION_GRANTED) {
                     download();
+                } else {
+                    if (mCompatFragmentCallback != null) {
+                        mCompatFragmentCallback.requestPermissions(new String[]{Manifest.permission.
+                                WRITE_EXTERNAL_STORAGE}, UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
+                    } else if (mFragmentCallback != null) {
+                        mFragmentCallback.requestPermissions(new String[]{Manifest.permission.
+                                WRITE_EXTERNAL_STORAGE}, UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
+                    } else {
+                        ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.
+                                WRITE_EXTERNAL_STORAGE}, UPDATE_DIALOG_PERMISSION_REQUEST_CODE);
+                    }
                 }
             }
         });
