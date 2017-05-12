@@ -1,5 +1,9 @@
 # CheckUpdateLibrary
 检查更新库 
+### 更新日志v1.1.2(2017-05-09):
+- 修复7.0在非强制更新方式下安装apk崩溃的bug
+- 修改非强制更新时动态获取权限的常量值为正确值
+- 更新gradle版本为3.3,更新相关SDK版本到25
 ### 更新日志v1.1.1(2017-05-08):
 - 优化动态获取权限请求功能,方便在fragment中请求权限,兼容v4包下的fragment以及app包下的fragment.
 现在动态获取权限时  
@@ -121,7 +125,7 @@ CheckUpdateLibrary具有超强扩展性:
 **gradle方式:**
 ```groovy
  dependencies {  
-    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.1.1' 
+    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.1.2@aar' 
     }
 ```
 **Maven方式:**  
@@ -129,7 +133,7 @@ CheckUpdateLibrary具有超强扩展性:
 <dependency>
   <groupId>com.qiangxi.checkupdatelibrary</groupId>
   <artifactId>checkupdatelibrary</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <type>pom</type>
 </dependency>
 ```  
