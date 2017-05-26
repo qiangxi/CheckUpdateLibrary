@@ -124,7 +124,7 @@ CheckUpdateLibrary具有超强扩展性:
 2,可自定义Dialog.虽然CheckUpdateLibrary中提供了两种Dialog:ForceUpdateDialog和UpdateDialg用来展示强制更新和非强制更新对话框,但还是会有很多开发者想使用自己自定义的Dialog,然后借助于CheckUpdateLibrary中的后台下载功能和通知展示功能来实现后台下载,而CheckUpdateLibrary也考虑到开发者的这种需求,开发者只需要继承CheckUpdateLibrary中的BaseService,然后实现相关方法即可实现自己的需求,具体的使用方式请参考下面的教程.  
 ## 用法:  
 #### Android Studio添加依赖:  
-可以从[这里](https://jcenter.bintray.com/com/qiangxi/checkupdatelibrary/checkupdatelibrary/)查看最新可依赖的版本
+可以从[这里](https://jcenter.bintray.com/com/qiangxi/checkupdatelibrary/checkupdatelibrary/)查看最新可依赖的版本  
 **gradle方式:**
 ```groovy
  dependencies {  
