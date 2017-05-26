@@ -1,5 +1,7 @@
 # CheckUpdateLibrary
 检查更新库 
+### 更新日志v1.1.3(2017-05-18):
+- 修复APP已获取权限后,以后更新时,点击下载按钮没反应的bug
 ### 更新日志v1.1.2(2017-05-09):
 - 修复7.0在非强制更新方式下安装apk崩溃的bug
 - 修改非强制更新时动态获取权限的常量值为正确值
@@ -125,7 +127,7 @@ CheckUpdateLibrary具有超强扩展性:
 **gradle方式:**
 ```groovy
  dependencies {  
-    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.1.2@aar' 
+    compile 'com.qiangxi.checkupdatelibrary:checkupdatelibrary:1.1.3@aar' 
     }
 ```
 **Maven方式:**  
@@ -133,7 +135,7 @@ CheckUpdateLibrary具有超强扩展性:
 <dependency>
   <groupId>com.qiangxi.checkupdatelibrary</groupId>
   <artifactId>checkupdatelibrary</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
   <type>pom</type>
 </dependency>
 ```  
