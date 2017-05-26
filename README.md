@@ -123,7 +123,8 @@ CheckUpdateLibrary具有超强扩展性:
 1,CheckUpdateLibrary有两种方式进行检查更新,对应着两种回调方式:CheckUpdateCallback和CheckUpdateCallback2,前者为了使用方便,所以需要开发者必须保证自定义的实体类中包含newAppVersionCode字段,该字段在库中用来判断是否有更新,而如果开发者想完全自定义实体,那么可以使用后者,即CheckUpdateCallback2,但是需要自己进行判断是否软件有更新.  
 2,可自定义Dialog.虽然CheckUpdateLibrary中提供了两种Dialog:ForceUpdateDialog和UpdateDialg用来展示强制更新和非强制更新对话框,但还是会有很多开发者想使用自己自定义的Dialog,然后借助于CheckUpdateLibrary中的后台下载功能和通知展示功能来实现后台下载,而CheckUpdateLibrary也考虑到开发者的这种需求,开发者只需要继承CheckUpdateLibrary中的BaseService,然后实现相关方法即可实现自己的需求,具体的使用方式请参考下面的教程.  
 ## 用法:  
-#### Android Studio添加依赖:  
+#### Android Studio添加依赖:  
+可以从[这里](https://jcenter.bintray.com/com/qiangxi/checkupdatelibrary/checkupdatelibrary/)查看最新可依赖的版本
 **gradle方式:**
 ```groovy
  dependencies {  
