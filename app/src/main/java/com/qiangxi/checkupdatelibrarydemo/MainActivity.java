@@ -163,12 +163,16 @@ public class MainActivity extends AppCompatActivity {
             //非强制更新对话框
             if (requestCode == UPDATE_DIALOG_PERMISSION_REQUEST_CODE) {
                 //进行下载操作
-                mUpdateDialog.download();
+                if (mUpdateDialog != null) {
+                    mUpdateDialog.download();
+                }
             }
             //强制更新对话框
             else if (requestCode == FORCE_UPDATE_DIALOG_PERMISSION_REQUEST_CODE) {
                 //进行下载操作
-                mForceUpdateDialog.download();
+                if (mForceUpdateDialog != null) {
+                    mForceUpdateDialog.download();
+                }
             }
         } else {
             //用户不同意,提示用户,如下载失败,因为您拒绝了相关权限
