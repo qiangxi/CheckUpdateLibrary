@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CompatTextView">
+        <attr name="rippleColor" format="color"/>
+        <attr name="contentDrawable" format="reference"/>
+        <attr name="maskDrawable" format="reference"/>
+        <attr name="selectorDrawable" format="reference"/>
+    </declare-styleable>
+</resources>

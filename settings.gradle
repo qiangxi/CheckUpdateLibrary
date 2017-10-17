@@ -1,1 +1,1 @@
-include ':app', ':checkupdatelibrary'
+include ':app', ':checkupdatelibrary', ':annotation', ':processor', ':sample', ':checkupdatelib'

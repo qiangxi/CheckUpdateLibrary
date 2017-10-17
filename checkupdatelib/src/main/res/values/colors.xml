@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FFFFFF</color>
+    <color name="text_color_01">#454545</color>
+    <color name="text_color_02">#888888</color>
+    <color name="text_color_03">#111111</color>
+    <color name="text_color_04">#aaaaaa</color>
+    <color name="divider_color">#eeeeee</color>
+
+</resources>
