@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import com.qiangxi.checkupdatelibrary.CheckUpdateOption;
 import com.qiangxi.checkupdatelibrary.Q;
 import com.qiangxi.checkupdatelibrary.callback.DownloadCallback;
 import com.qiangxi.checkupdatelibrary.callback.StringCallback;
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements StringCallback, D
 //        Q.post(API, params).callback(this).execute();
         //download
 //        Q.download(DOWNLOAD, PATH, NAME).execute();
-        Q.show(this, null);
+        Q.show(this, new CheckUpdateOption.Builder().build());
     }
 
     @Override

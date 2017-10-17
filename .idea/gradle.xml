@@ -9,9 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/annotation" />
-            <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/checkupdatelib" />
-            <option value="$PROJECT_DIR$/checkupdatelibrary" />
             <option value="$PROJECT_DIR$/processor" />
             <option value="$PROJECT_DIR$/sample" />
           </set>
