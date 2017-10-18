@@ -53,7 +53,7 @@ public abstract class BaseDialogFragment extends DialogFragment {
     @Override
     public abstract Dialog onCreateDialog(Bundle savedInstanceState);
 
-    public void apply(CheckUpdateOption option) {
+    public void applyOption(CheckUpdateOption option) {
         mOption = option;
     }
 

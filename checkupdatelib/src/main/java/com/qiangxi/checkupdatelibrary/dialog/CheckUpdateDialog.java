@@ -1,8 +1,10 @@
 package com.qiangxi.checkupdatelibrary.dialog;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Process;
 import android.support.annotation.NonNull;
@@ -17,7 +19,10 @@ import com.qiangxi.checkupdatelibrary.CheckUpdateOption;
 import com.qiangxi.checkupdatelibrary.Q;
 import com.qiangxi.checkupdatelibrary.R;
 import com.qiangxi.checkupdatelibrary.callback.DownloadCallback;
+import com.qiangxi.checkupdatelibrary.imageloader.ImageLoader;
+import com.qiangxi.checkupdatelibrary.service.DownloadService;
 import com.qiangxi.checkupdatelibrary.utils.AppUtil;
+import com.qiangxi.checkupdatelibrary.utils.L;
 
 import java.io.File;
 
@@ -43,6 +48,7 @@ import java.io.File;
  */
 public class CheckUpdateDialog extends BaseDialogFragment {
     private InternalDialog mDialog;
+    private ImageLoader mLoader;
 
     @Override
     public InternalDialog getDialog() {
@@ -54,12 +60,18 @@ public class CheckUpdateDialog extends BaseDialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mDialog = new InternalDialog(mActivity);
         mDialog.apply(mOption);
+        mDialog.setImageLoader(mLoader);
         return mDialog;
+    }
+
+    public void setImageLoader(ImageLoader loader) {
+        mLoader = loader;
     }
 }
 
 class InternalDialog extends Dialog implements DownloadCallback {
     private CheckUpdateOption mOption;
+    private ImageLoader mLoader;
     private ImageView checkUpdateImage;
     private TextView checkUpdateVersionCode;
     private TextView checkUpdateVersionSize;
@@ -67,9 +79,13 @@ class InternalDialog extends Dialog implements DownloadCallback {
     private TextView checkUpdateNegative;
     private TextView checkUpdatePositive;
     private ProgressBar checkUpdateProgressBar;
+    private Activity mActivity;
+    private boolean isDownloadComplete;
+    private File mApk;
 
     InternalDialog(@NonNull Context context) {
         super(context, R.style.checkUpdateDialogStyle);
+        mActivity = (Activity) context;
     }
 
     @Override
@@ -105,6 +121,10 @@ class InternalDialog extends Dialog implements DownloadCallback {
         checkUpdatePositive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isDownloadComplete) {
+                    AppUtil.installApk(getContext(), mApk);
+                    return;
+                }
                 downloadInBackgroundIfNeeded();
             }
         });
@@ -112,10 +132,14 @@ class InternalDialog extends Dialog implements DownloadCallback {
 
     private void downloadInBackgroundIfNeeded() {
         if (mOption.isForceUpdate()) {
+            checkUpdatePositive.setClickable(false);
             Q.download(mOption.getNewAppUrl(), mOption.getFilePath(), mOption.getFileName())
                     .callback(this).execute();
         } else {
-            // TODO: 2017/10/17 do in background
+            Intent intent = new Intent(mActivity, DownloadService.class);
+            intent.putExtra("CheckUpdateOption", mOption);
+            getContext().startService(intent);
+            dismiss();
         }
     }
 
@@ -128,9 +152,13 @@ class InternalDialog extends Dialog implements DownloadCallback {
         }
     }
 
-
     @SuppressLint("SetTextI18n")
     private void initData() {
+        if (!TextUtils.isEmpty(mOption.getImageUrl()) && mLoader != null) {
+            mLoader.loadImage(checkUpdateImage, mOption.getImageUrl());
+        } else if (mOption.getImageResId() != 0 && mLoader != null) {
+            checkUpdateImage.setImageResource(mOption.getImageResId());
+        }
         if (mOption.isForceUpdate()) {
             setCancelable(false);
             checkUpdateNegative.setText("退出应用");
@@ -160,17 +188,19 @@ class InternalDialog extends Dialog implements DownloadCallback {
 
     @Override
     public void checkUpdateStart() {
-
+        checkUpdatePositive.setText("正在下载...");
     }
 
     @Override
     public void checkUpdateFailure(Throwable t) {
-
+        L.e(t);
+        checkUpdatePositive.setText("下载失败");
+        checkUpdatePositive.setClickable(true);
     }
 
     @Override
     public void checkUpdateFinish() {
-
+        checkUpdatePositive.setClickable(true);
     }
 
     @Override
@@ -181,6 +211,14 @@ class InternalDialog extends Dialog implements DownloadCallback {
 
     @Override
     public void downloadSuccess(File apk) {
+        mApk = apk;
+        checkUpdatePositive.setText("点击安装");
+        isDownloadComplete = true;
+        checkUpdatePositive.setClickable(true);
         AppUtil.installApk(getContext(), apk);
+    }
+
+    public void setImageLoader(ImageLoader loader) {
+        mLoader = loader;
     }
 }

@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 
 import com.qiangxi.checkupdatelibrary.dialog.CheckUpdateDialog;
+import com.qiangxi.checkupdatelibrary.imageloader.ImageLoader;
 import com.qiangxi.checkupdatelibrary.task.DownloadTask;
 import com.qiangxi.checkupdatelibrary.task.GetTask;
 import com.qiangxi.checkupdatelibrary.task.PostTask;
@@ -92,7 +93,24 @@ public class Q {
     public static CheckUpdateDialog show(FragmentActivity context, CheckUpdateOption option) {
         FragmentManager manager = context.getSupportFragmentManager();
         CheckUpdateDialog dialog = new CheckUpdateDialog();
-        dialog.apply(option);
+        dialog.applyOption(option);
+        dialog.show(manager, "CheckUpdateDialog");
+        return dialog;
+    }
+
+    /**
+     * 在使用lib自带的CheckUpdateDialog时，可使用该方法展示一个dialogFragment
+     *
+     * @param context must be FragmentActivity
+     * @param option  the CheckUpdateOption,用于设置lib自带的CheckUpdateDialog的一些属性
+     * @param loader  从网络加载图片的imageLoader,从本地加载图片的话，可不用ImageLoader
+     * @return CheckUpdateDialog
+     */
+    public static CheckUpdateDialog show(FragmentActivity context, CheckUpdateOption option, ImageLoader loader) {
+        FragmentManager manager = context.getSupportFragmentManager();
+        CheckUpdateDialog dialog = new CheckUpdateDialog();
+        dialog.applyOption(option);
+        dialog.setImageLoader(loader);
         dialog.show(manager, "CheckUpdateDialog");
         return dialog;
     }

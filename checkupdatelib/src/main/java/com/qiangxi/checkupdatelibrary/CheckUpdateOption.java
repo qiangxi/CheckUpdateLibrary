@@ -15,12 +15,16 @@ package com.qiangxi.checkupdatelibrary;
  * limitations under the License.
  */
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.DrawableRes;
+
 /**
  * Created by qiangxi(任强强) on 2017/10/15.
  * CheckUpdateDialog的配置实体
  */
 
-public class CheckUpdateOption {
+public class CheckUpdateOption implements Parcelable {
     private String appName;//app名称
     private float newAppSize;//新app大小
     private int newAppVersionCode;//新app版本号
@@ -31,6 +35,11 @@ public class CheckUpdateOption {
     private boolean isForceUpdate;//是否强制更新
     private String filePath;//apk存储路径
     private String fileName;//apk名称
+    private int notificationIconResId;//通知图标
+    private String notificationTitle;//通知标题
+    private String notificationContent;//通知内容
+    private String imageUrl;//图片地址
+    private int imageResId;//图片本地资源id
 
     private CheckUpdateOption() {
     }
@@ -73,6 +82,26 @@ public class CheckUpdateOption {
 
     public String getFileName() {
         return fileName;
+    }
+
+    public int getNotificationIconResId() {
+        return notificationIconResId;
+    }
+
+    public String getNotificationTitle() {
+        return notificationTitle;
+    }
+
+    public String getNotificationContent() {
+        return notificationContent;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public int getImageResId() {
+        return imageResId;
     }
 
     public static class Builder {
@@ -137,8 +166,87 @@ public class CheckUpdateOption {
             return this;
         }
 
+        public Builder setNotificationIconResId(@DrawableRes int notificationIconResId) {
+            mOption.notificationIconResId = notificationIconResId;
+            return this;
+        }
+
+        public Builder setNotificationTitle(String notificationTitle) {
+            mOption.notificationTitle = notificationTitle;
+            return this;
+        }
+
+        public Builder setNotificationContent(String notificationContent) {
+            mOption.notificationContent = notificationContent;
+            return this;
+        }
+
+        public Builder setImageUrl(String imageUrl) {
+            mOption.imageUrl = imageUrl;
+            return this;
+        }
+
+        public Builder setImageResId(@DrawableRes int imageResId) {
+            mOption.imageResId = imageResId;
+            return this;
+        }
+
         public CheckUpdateOption build() {
             return mOption;
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.appName);
+        dest.writeFloat(this.newAppSize);
+        dest.writeInt(this.newAppVersionCode);
+        dest.writeString(this.newAppVersionName);
+        dest.writeString(this.newAppUpdateDesc);
+        dest.writeString(this.newAppReleaseTime);
+        dest.writeString(this.newAppUrl);
+        dest.writeByte(this.isForceUpdate ? (byte) 1 : (byte) 0);
+        dest.writeString(this.filePath);
+        dest.writeString(this.fileName);
+        dest.writeInt(this.notificationIconResId);
+        dest.writeString(this.notificationTitle);
+        dest.writeString(this.notificationContent);
+        dest.writeString(this.imageUrl);
+        dest.writeInt(this.imageResId);
+    }
+
+    protected CheckUpdateOption(Parcel in) {
+        this.appName = in.readString();
+        this.newAppSize = in.readFloat();
+        this.newAppVersionCode = in.readInt();
+        this.newAppVersionName = in.readString();
+        this.newAppUpdateDesc = in.readString();
+        this.newAppReleaseTime = in.readString();
+        this.newAppUrl = in.readString();
+        this.isForceUpdate = in.readByte() != 0;
+        this.filePath = in.readString();
+        this.fileName = in.readString();
+        this.notificationIconResId = in.readInt();
+        this.notificationTitle = in.readString();
+        this.notificationContent = in.readString();
+        this.imageUrl = in.readString();
+        this.imageResId = in.readInt();
+    }
+
+    public static final Creator<CheckUpdateOption> CREATOR = new Creator<CheckUpdateOption>() {
+        @Override
+        public CheckUpdateOption createFromParcel(Parcel source) {
+            return new CheckUpdateOption(source);
+        }
+
+        @Override
+        public CheckUpdateOption[] newArray(int size) {
+            return new CheckUpdateOption[size];
+        }
+    };
 }
