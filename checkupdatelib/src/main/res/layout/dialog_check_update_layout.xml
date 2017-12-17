@@ -22,7 +22,6 @@
         android:paddingLeft="@dimen/dp_20"
         android:paddingRight="@dimen/dp_20"
         android:paddingTop="@dimen/dp_10"
-        android:text="版本号：3.5.2"
         android:textColor="@color/text_color_02"
         android:textSize="@dimen/sp_16"/>
 
@@ -36,7 +35,6 @@
         android:paddingLeft="@dimen/dp_20"
         android:paddingRight="@dimen/dp_20"
         android:paddingTop="@dimen/dp_10"
-        android:text="新版大小：15.36M"
         android:textColor="@color/text_color_02"
         android:textSize="@dimen/sp_16"/>
 
@@ -67,24 +65,19 @@
         android:maxLines="4"
         android:paddingLeft="@dimen/dp_20"
         android:paddingRight="@dimen/dp_20"
-        android:text="大声大声大声点好了是的哈市里的\n卡啊是的哈水陆大会萨洛\n克等哈说李登辉示例当哈三联的还\n是打死了大萨达哈水陆大会萨拉丁爱仕达拉斯动画萨拉丁哈水陆大会打脸萨还打算离婚的洒落的哈利多\n撒好的拉升的历史大路上打开撒谎当时的哈萨克蓝灯后撒蓝灯后萨拉丁沙拉等哈说李登辉萨拉丁"
         android:textColor="@color/text_color_02"
         android:textSize="@dimen/sp_16"/>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/px_1"
-        android:layout_marginTop="@dimen/dp_10"
-        android:background="@color/divider_color"/>
 
     <ProgressBar
         android:id="@+id/check_update_progress"
         style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="3dp"
         android:layout_marginLeft="@dimen/dp_20"
         android:layout_marginRight="@dimen/dp_20"
-        android:layout_marginTop="@dimen/dp_10"/>
+        android:layout_marginTop="@dimen/dp_10"
+        android:progressDrawable="@drawable/layer_progress_bg"
+        android:visibility="gone"/>
 
     <View
         android:layout_width="match_parent"

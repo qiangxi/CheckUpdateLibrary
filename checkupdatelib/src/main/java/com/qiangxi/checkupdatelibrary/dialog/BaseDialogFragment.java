@@ -1,8 +1,10 @@
 package com.qiangxi.checkupdatelibrary.dialog;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -33,6 +35,7 @@ import com.qiangxi.checkupdatelibrary.CheckUpdateOption;
  */
 
 public abstract class BaseDialogFragment extends DialogFragment {
+
     protected Context mContext;
     protected Activity mActivity;
     protected CheckUpdateOption mOption;
@@ -53,6 +56,11 @@ public abstract class BaseDialogFragment extends DialogFragment {
     @Override
     public abstract Dialog onCreateDialog(Bundle savedInstanceState);
 
+    protected abstract void agreeStoragePermission();
+
+    protected abstract void rejectStoragePermission();
+
+
     public void applyOption(CheckUpdateOption option) {
         mOption = option;
     }
@@ -67,9 +75,19 @@ public abstract class BaseDialogFragment extends DialogFragment {
         super.show(manager, tag);
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (requestCode == 0x007) agreeStoragePermission();
+        } else {
+            rejectStoragePermission();
+        }
+    }
+
+    @Override
+    public boolean shouldShowRequestPermissionRationale(@NonNull String permission) {
+        return super.shouldShowRequestPermissionRationale(permission);
     }
 }

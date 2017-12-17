@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import com.qiangxi.checkupdatelibrary.CheckUpdateOption;
 import com.qiangxi.checkupdatelibrary.Q;
 import com.qiangxi.checkupdatelibrary.callback.DownloadCallback;
+import com.qiangxi.checkupdatelibrary.utils.AppUtil;
 import com.qiangxi.checkupdatelibrary.utils.NotificationUtil;
 
 import java.io.File;
@@ -62,7 +63,7 @@ public class DownloadService extends Service implements DownloadCallback {
         intent.putExtra("CheckUpdateOption", mOption);
         startService(intent);
         NotificationUtil.showDownloadFailureNotification(this, intent, mOption.getNotificationIconResId(),
-                mOption.getNotificationTitle(), mOption.getNotificationContent(), true);
+                mOption.getNotificationTitle(), mOption.getNotificationFailureContent(), true);
     }
 
     @Override
@@ -78,7 +79,8 @@ public class DownloadService extends Service implements DownloadCallback {
 
     @Override
     public void downloadSuccess(File apk) {
+        AppUtil.installApk(this, apk);
         NotificationUtil.showDownloadSuccessNotification(this, apk, mOption.getNotificationIconResId(),
-                mOption.getNotificationTitle(), mOption.getNotificationContent(), false);
+                mOption.getNotificationTitle(), mOption.getNotificationSuccessContent(), false);
     }
 }

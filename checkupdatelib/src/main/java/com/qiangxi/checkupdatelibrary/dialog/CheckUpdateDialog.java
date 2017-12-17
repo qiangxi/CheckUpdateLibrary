@@ -1,16 +1,25 @@
 package com.qiangxi.checkupdatelibrary.dialog;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -58,10 +67,24 @@ public class CheckUpdateDialog extends BaseDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mDialog = new InternalDialog(mActivity);
+        mDialog = new InternalDialog(mActivity, this);
         mDialog.apply(mOption);
         mDialog.setImageLoader(mLoader);
         return mDialog;
+    }
+
+    @Override
+    protected void agreeStoragePermission() {
+        mDialog.downloadInBackgroundIfNeeded();
+    }
+
+    @Override
+    protected void rejectStoragePermission() {
+        try {
+            mDialog.dismissIfNeeded();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void setImageLoader(ImageLoader loader) {
@@ -82,10 +105,12 @@ class InternalDialog extends Dialog implements DownloadCallback {
     private Activity mActivity;
     private boolean isDownloadComplete;
     private File mApk;
+    private CheckUpdateDialog mCheckUpdateDialog;
 
-    InternalDialog(@NonNull Context context) {
+    InternalDialog(@NonNull Context context, CheckUpdateDialog checkUpdateDialog) {
         super(context, R.style.checkUpdateDialogStyle);
         mActivity = (Activity) context;
+        mCheckUpdateDialog = checkUpdateDialog;
     }
 
     @Override
@@ -125,12 +150,24 @@ class InternalDialog extends Dialog implements DownloadCallback {
                     AppUtil.installApk(getContext(), mApk);
                     return;
                 }
-                downloadInBackgroundIfNeeded();
+                if (mActivity.getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.M) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        int permissionStatus = ActivityCompat.checkSelfPermission(mActivity, Manifest.permission_group.STORAGE);
+                        if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+                            mCheckUpdateDialog.requestPermissions(new String[]{Manifest.permission.
+                                    WRITE_EXTERNAL_STORAGE}, 0x007);
+                        }
+                    } else {
+                        downloadInBackgroundIfNeeded();
+                    }
+                } else {
+                    downloadInBackgroundIfNeeded();
+                }
             }
         });
     }
 
-    private void downloadInBackgroundIfNeeded() {
+    void downloadInBackgroundIfNeeded() {
         if (mOption.isForceUpdate()) {
             checkUpdatePositive.setClickable(false);
             Q.download(mOption.getNewAppUrl(), mOption.getFilePath(), mOption.getFileName())
@@ -143,7 +180,7 @@ class InternalDialog extends Dialog implements DownloadCallback {
         }
     }
 
-    private void dismissIfNeeded() {
+    void dismissIfNeeded() {
         if (mOption.isForceUpdate()) {
             System.exit(0);
             Process.killProcess(Process.myPid());
@@ -205,6 +242,7 @@ class InternalDialog extends Dialog implements DownloadCallback {
 
     @Override
     public void downloadProgress(long currentLength, long totalLength) {
+        checkUpdateProgressBar.setVisibility(View.VISIBLE);
         checkUpdateProgressBar.setMax((int) totalLength);
         checkUpdateProgressBar.setProgress((int) currentLength);
     }
@@ -218,7 +256,29 @@ class InternalDialog extends Dialog implements DownloadCallback {
         AppUtil.installApk(getContext(), apk);
     }
 
-    public void setImageLoader(ImageLoader loader) {
+    void setImageLoader(ImageLoader loader) {
         mLoader = loader;
     }
+
+    @Override
+    public void show() {
+        super.show();
+        resizeWidthAndHeight();
+    }
+
+    private void resizeWidthAndHeight() {
+        Window window = getWindow();
+        if (window == null) return;
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.gravity = Gravity.CENTER;
+        lp.width = dp2px(260);//宽高固定为260dp
+        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+    }
+
+    private int dp2px(float dp) {
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        return (int) ((dp * displayMetrics.density) + 0.5);
+    }
+
 }

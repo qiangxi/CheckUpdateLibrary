@@ -37,7 +37,8 @@ public class CheckUpdateOption implements Parcelable {
     private String fileName;//apk名称
     private int notificationIconResId;//通知图标
     private String notificationTitle;//通知标题
-    private String notificationContent;//通知内容
+    private String notificationSuccessContent;//下载成功通知内容
+    private String notificationFailureContent;//下载失败通知内容
     private String imageUrl;//图片地址
     private int imageResId;//图片本地资源id
 
@@ -92,8 +93,12 @@ public class CheckUpdateOption implements Parcelable {
         return notificationTitle;
     }
 
-    public String getNotificationContent() {
-        return notificationContent;
+    public String getNotificationSuccessContent() {
+        return notificationSuccessContent;
+    }
+
+    public String getNotificationFailureContent() {
+        return notificationFailureContent;
     }
 
     public String getImageUrl() {
@@ -176,8 +181,13 @@ public class CheckUpdateOption implements Parcelable {
             return this;
         }
 
-        public Builder setNotificationContent(String notificationContent) {
-            mOption.notificationContent = notificationContent;
+        public Builder setNotificationSuccessContent(String notificationSuccessContent) {
+            mOption.notificationSuccessContent = notificationSuccessContent;
+            return this;
+        }
+
+        public Builder setNotificationFailureContent(String notificationFailureContent) {
+            mOption.notificationFailureContent = notificationFailureContent;
             return this;
         }
 
@@ -215,7 +225,8 @@ public class CheckUpdateOption implements Parcelable {
         dest.writeString(this.fileName);
         dest.writeInt(this.notificationIconResId);
         dest.writeString(this.notificationTitle);
-        dest.writeString(this.notificationContent);
+        dest.writeString(this.notificationSuccessContent);
+        dest.writeString(this.notificationFailureContent);
         dest.writeString(this.imageUrl);
         dest.writeInt(this.imageResId);
     }
@@ -233,7 +244,8 @@ public class CheckUpdateOption implements Parcelable {
         this.fileName = in.readString();
         this.notificationIconResId = in.readInt();
         this.notificationTitle = in.readString();
-        this.notificationContent = in.readString();
+        this.notificationSuccessContent = in.readString();
+        this.notificationFailureContent = in.readString();
         this.imageUrl = in.readString();
         this.imageResId = in.readInt();
     }

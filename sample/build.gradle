@@ -7,7 +7,7 @@ android {
     defaultConfig {
         applicationId "com.qiangxi.sample"
         minSdkVersion 16
-        targetSdkVersion 22
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
 
@@ -32,4 +32,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile project(':annotation')
     compile project(':checkupdatelib')
+    compile 'com.github.bumptech.glide:glide:3.6.1'
 }
