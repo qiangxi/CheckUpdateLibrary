@@ -1,6 +1,6 @@
 # CheckUpdateLibrary
 检查更新库 
-
+[![Build Status](https://travis-ci.org/qiangxi/CheckUpdateLibrary.svg?branch=master)](https://travis-ci.org/qiangxi/CheckUpdateLibrary)  
 #### 重构后具有的功能
 
 本库已经从代码的架构、设计、性能、UI等方面进行彻底的重构，但由于日常工作**极其**繁重，导致整个开发进度严重拖延，本来设计好的一些功能因为时间问题一直处于停滞状态，但幸运的是项目也有一些进展，目前重构后的项目具有以下功能：  
