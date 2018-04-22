@@ -8,6 +8,7 @@ android:
     - android-27
 before_install:
     - yes | sdkmanager "platforms;android-27"
+sudo: true
 script:
     - ./gradlew clean build -d -i
 before_cache:
