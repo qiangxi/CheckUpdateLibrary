@@ -10,7 +10,7 @@ before_install:
     - chmod +x gradlew #解决./gradlew: Permission denied 问题
     - yes | sdkmanager "platforms;android-27"
 script:
-    - ./gradlew clean build -d -i
+    - ./gradlew clean build  -x :checkupdatelib:javadoc  -d -i
 before_cache:
     - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
