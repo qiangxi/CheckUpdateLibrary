@@ -6,11 +6,9 @@ android:
     - tools
     - build-tools-27.0.3
     - android-27
-    before_install:
 before_install:
     - chmod +x gradlew #解决./gradlew: Permission denied 问题
     - yes | sdkmanager "platforms;android-27"
-sudo: true
 script:
     - ./gradlew clean build -d -i
 before_cache:
