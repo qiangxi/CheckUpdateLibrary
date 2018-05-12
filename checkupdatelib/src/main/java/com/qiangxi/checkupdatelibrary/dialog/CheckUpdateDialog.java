@@ -106,6 +106,7 @@ class InternalDialog extends Dialog implements DownloadCallback {
     private boolean isDownloadComplete;
     private File mApk;
     private CheckUpdateDialog mCheckUpdateDialog;
+    private long timeRange;//时间间隔
 
     InternalDialog(@NonNull Context context, CheckUpdateDialog checkUpdateDialog) {
         super(context, R.style.checkUpdateDialogStyle);
@@ -146,6 +147,12 @@ class InternalDialog extends Dialog implements DownloadCallback {
         checkUpdatePositive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //防抖动,两次点击间隔小于500ms都return;
+                if (System.currentTimeMillis() - timeRange < 500) {
+                    return;
+                }
+                timeRange = System.currentTimeMillis();
+
                 if (isDownloadComplete) {
                     AppUtil.installApk(getContext(), mApk);
                     return;
