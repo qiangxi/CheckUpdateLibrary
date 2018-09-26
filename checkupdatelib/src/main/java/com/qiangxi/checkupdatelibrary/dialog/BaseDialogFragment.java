@@ -66,13 +66,10 @@ public abstract class BaseDialogFragment extends DialogFragment {
     }
 
     @Override
-    public int show(FragmentTransaction transaction, String tag) {
-        return super.show(transaction, tag);
-    }
-
-    @Override
     public void show(FragmentManager manager, String tag) {
-        super.show(manager, tag);
+        if (!manager.isStateSaved()) {
+            super.show(manager, tag);
+        }
     }
 
     @Override
@@ -80,7 +77,9 @@ public abstract class BaseDialogFragment extends DialogFragment {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            if (requestCode == 0x007) agreeStoragePermission();
+            if (requestCode == 0x007) {
+                agreeStoragePermission();
+            }
         } else {
             rejectStoragePermission();
         }

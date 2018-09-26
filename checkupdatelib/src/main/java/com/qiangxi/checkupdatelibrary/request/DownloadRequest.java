@@ -50,8 +50,9 @@ public class DownloadRequest implements IRequest {
         mUrl = url;
         mApk = file;
         //检查callback类型
-        if (callback != null && !(callback instanceof DownloadCallback))
+        if (callback != null && !(callback instanceof DownloadCallback)) {
             throw new CallbackException("DownloadRequest must be use DownloadCallback");
+        }
         mCallback = (DownloadCallback) callback;
     }
 
@@ -77,9 +78,12 @@ public class DownloadRequest implements IRequest {
                     CallbackDispatcher.dispatchRequestFailure(mCallback, new DownloadException("body==null"));
                     return;
                 }
-                writeFileFromBody(mApk, body);
-                CallbackDispatcher.dispatchDownloadSuccess(mCallback, mApk);
-                CallbackDispatcher.dispatchRequestFinish(mCallback);
+                if (writeFileFromBody(mApk, body, mCallback)) {
+                    CallbackDispatcher.dispatchDownloadSuccess(mCallback, mApk);
+                    CallbackDispatcher.dispatchRequestFinish(mCallback);
+                } else {
+                    CallbackDispatcher.dispatchRequestFailure(mCallback, new DownloadException("writeFileFromBody has occur exception"));
+                }
             }
         });
     }
@@ -91,7 +95,7 @@ public class DownloadRequest implements IRequest {
      * @param body 响应体
      * @throws IOException io过程中的异常
      */
-    private void writeFileFromBody(File file, ResponseBody body) throws IOException {
+    private boolean writeFileFromBody(File file, ResponseBody body, DownloadCallback callback) throws IOException {
         final InputStream is = body.byteStream();
         final long totalLength = body.contentLength();
         FileOutputStream fos = null;
@@ -104,18 +108,26 @@ public class DownloadRequest implements IRequest {
                 fos.write(data, 0, len);
                 current += len;
                 //1s回调一次
-                if (current < totalLength)
-                    if (System.currentTimeMillis() - mLastUpdateTime < 1000) continue;
+                if (current < totalLength) {
+                    if (System.currentTimeMillis() - mLastUpdateTime < 1000) {
+                        continue;
+                    }
+                }
                 mLastUpdateTime = System.currentTimeMillis();
-                CallbackDispatcher.dispatchDownloading(mCallback, current, totalLength);
+                CallbackDispatcher.dispatchDownloading(callback, current, totalLength);
             }
             fos.flush();
+            return current == totalLength;
         } catch (IOException e) {
             L.e(e);
-            CallbackDispatcher.dispatchRequestFailure(mCallback, new DownloadException(e));
+            return false;
         } finally {
-            if (is != null) is.close();
-            if (fos != null) fos.close();
+            if (is != null) {
+                is.close();
+            }
+            if (fos != null) {
+                fos.close();
+            }
         }
     }
 }
